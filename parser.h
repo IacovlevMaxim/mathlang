@@ -37,3 +37,8 @@ void parse(stack_t *exec_stack, stack_t *def_stack, node_t *tokens[],
 //   size_t pos;
 //   char **names;
 // } registr_t;
+
+// typedef struct {
+//   size_t size;
+//   stack_t **branches;
+// } tree_t;
