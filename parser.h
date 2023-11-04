@@ -19,14 +19,14 @@ typedef struct node_t {
   struct node_t *next;
 } node_t;
 
-typedef struct stack_t {
+typedef struct sstack_t {
   node_t *node;
-} stack_t;
+} sstack_t;
 
 node_t *init_node();
-int push_node(stack_t *stack, node_t *to_push);
-node_t *pop_node(stack_t *stack);
-void parse(stack_t *exec_stack, stack_t *def_stack, node_t *tokens[],
+int push_node(sstack_t *stack, node_t *to_push);
+node_t *pop_node(sstack_t *stack);
+void parse(sstack_t *exec_stack, sstack_t *def_stack, node_t *tokens[],
            size_t size);
 
 #endif // MATHLANG_PARSER_H

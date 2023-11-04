@@ -15,7 +15,7 @@ node_t *init_node() {
   return node;
 }
 
-int push_node(stack_t *stack, node_t *to_push) {
+int push_node(sstack_t *stack, node_t *to_push) {
   if (to_push == NULL || stack == NULL)
     return 0;
   // printf("%s\n", to_push->str);
@@ -24,7 +24,7 @@ int push_node(stack_t *stack, node_t *to_push) {
   return 1;
 }
 
-node_t *pop_node(stack_t *stack) {
+node_t *pop_node(sstack_t *stack) {
   node_t *to_pop = stack->node;
   if (stack->node == NULL)
     return NULL;
@@ -33,7 +33,7 @@ node_t *pop_node(stack_t *stack) {
   return to_pop;
 }
 
-void parse(stack_t *exec_stack, stack_t *def_stack, node_t *tokens[],
+void parse(sstack_t *exec_stack, sstack_t *def_stack, node_t *tokens[],
            size_t size) {
   int i = 0;
   int op_deapth = 1;

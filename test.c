@@ -6,9 +6,9 @@
 const int SIZE = 20;
 
 int main() {
-  stack_t *stack = malloc(sizeof(stack_t));
+  sstack_t *stack = malloc(sizeof(sstack_t));
   stack->node = NULL;
-  stack_t *def = malloc(sizeof(stack_t));
+  sstack_t *def = malloc(sizeof(sstack_t));
   def->node = NULL;
   node_t *tokens[SIZE];
 
