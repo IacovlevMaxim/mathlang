@@ -5,8 +5,6 @@
 #ifndef MATHLANG_LEXER_H
 #define MATHLANG_LEXER_H
 
-#include "parser.h"
-
 typedef struct node_t node_t;
 
 int is_integer(char* str);
