@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "parser.h"
+#include "stack.h"
 
 #define MAX_VAR_AMOUNT 10
 
@@ -83,31 +83,6 @@ int get_cond_op_type(char* str) {
     if(strcmp(str, "if") == 0)    return IF;
     if(strcmp(str, "else") == 0)  return ELSE;
     return TYPE_NONE;
-}
-
-void append_node(node_t *top, node_t *new) {
-    if(top->tok_class == CLASS_NONE) {
-//        printf("added as first: %s\n", new->str);
-        *top = *new;
-        return;
-    }
-
-    if(top->next == NULL) {
-//        printf("added second after %s: %s\n", top->str, new->str);
-        top->next = new;
-
-//        printf("%s\n", top->next->str);
-        return;
-    }
-
-    node_t* curr = top;
-    while(curr->next != NULL) {
-//        printf("skipping %s\n", curr->str);
-        curr = curr->next;
-    }
-
-//    printf("added new after %s: %s\n", curr->str, new->str);
-    curr->next = new;
 }
 
 void parse_code(char* code, node_t* top) {
