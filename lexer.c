@@ -128,9 +128,7 @@ void parse_code(char* code, node_t* top) {
 //        printf("looking at '%c'\n", c);
         if (c != ' ' && c != '\n') {
 //            printf("skipping '%c'\n", c);
-            int len = (int) strlen(token);
-            token[len] = c;
-            token[len + 1] = '\0';
+            strncat(token, &c, 1);
             continue;
         }
 
@@ -139,6 +137,11 @@ void parse_code(char* code, node_t* top) {
 //        printf("checking '%s'\n", token);
         node_t *curr;
         curr = malloc(sizeof(node_t));
+        if(curr == NULL) {
+            fprintf(stderr, "Lexer error: Failed to allocate memory for node");
+            exit(1);
+        }
+        curr->next = NULL;
         int op_type = get_op_type(token);
         int cond_op_type = get_cond_op_type(token);
 
