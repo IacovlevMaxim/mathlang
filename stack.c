@@ -29,6 +29,17 @@ node_t *pop_node(sstack_t *stack) {
   return to_pop;
 }
 
+node_t *get_last_node(sstack_t *stack) {
+    if(stack->node == NULL) return NULL;
+
+    node_t *n = stack->node;
+    while(n->next != NULL) {
+        n = n->next;
+    }
+
+    return n;
+}
+
 // TODO for rewrite to be possible,
 // nodes must have besides `next` the `prev` field
 // and basicaly this function should
