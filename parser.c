@@ -1,6 +1,7 @@
 #include "parser.h"
 #include "stack.h"
-#include "stdio.h"
+
+#include <stdio.h>
 #include <stdlib.h>
 
 // Old func as refference:

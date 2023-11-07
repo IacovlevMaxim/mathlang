@@ -1,5 +1,5 @@
-#include "stack.h"
 #include "lexer.h"
+#include "stack.h"
 #include "tokens.h"
 #include <regex.h>
 #include <stdio.h>
@@ -10,8 +10,6 @@
 
 // Maybe without the caret?
 const char *IS_VAR = "^[a-zA-Z_][a-zA-Z0-9]*";
-
-node_t EMPTY_DATA = {CLASS_NONE, TYPE_NONE, ""};
 
 regex_t var_regex;
 
