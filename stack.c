@@ -69,6 +69,8 @@ sstack_t *init_stack() {
 
 int join_stacks(sstack_t *s1, sstack_t *s2) {
   if (s1 == NULL || s2 == NULL || s2->node == NULL)
-    return NULL;
+    return 0;
+
   s1->last = s2->node;
+  return 1;
 }
