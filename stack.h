@@ -4,7 +4,7 @@
 
 #ifndef MATHLANG_STACK_H
 #define MATHLANG_STACK_H
-#include "lexer.h"
+#include "tokens.h"
 
 typedef union {
   float *f;
@@ -22,13 +22,13 @@ typedef struct node_t {
 
 typedef struct sstack_t {
   node_t *node;
-  node_t *last;
 } sstack_t;
 
 node_t *init_node();
+sstack_t *init_stack();
 int push_node(sstack_t *stack, node_t *to_push);
 node_t *pop_node(sstack_t *stack);
-void append_node(node_t *top, node_t *nnew);
+int append_node(sstack_t *top, node_t *nnew);
 
 sstack_t *init_stack();
 int join_stacks(sstack_t *s1, sstack_t *s2);

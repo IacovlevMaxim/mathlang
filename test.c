@@ -19,19 +19,27 @@ int main() {
                "}\n";
 
   printf("Code:\n///\n%s\n///\n", code);
-  node_t node = EMPTY_DATA;
-  parse_code(code, &node);
-  printf("Node contents:\n");
-  printf("str: %s\n", node.str);
-  printf("type: %d\n", node.tok_type);
-  printf("class: %d\n", node.tok_class);
-  while (node.next != NULL) {
-    printf("-----\n");
-    printf("str: %s\n", node.next->str);
-    printf("type: %d\n", node.next->tok_type);
-    printf("class: %d\n", node.next->tok_class);
-    node = *node.next;
+//  node_t node = EMPTY_DATA;
+  sstack_t *stack = init_stack();
+  parse_code(code, stack);
+
+  node_t *curr = pop_node(stack);
+  while(curr != NULL) {
+      printf("%s", curr->str);
+      curr = pop_node(stack);
   }
+
+//  printf("Node contents:\n");
+//  printf("str: %s\n", node.str);
+//  printf("type: %d\n", node.tok_type);
+//  printf("class: %d\n", node.tok_class);
+//  while (node.next != NULL) {
+//    printf("-----\n");
+//    printf("str: %s\n", node.next->str);
+//    printf("type: %d\n", node.next->tok_type);
+//    printf("class: %d\n", node.next->tok_class);
+//    node = *node.next;
+//  }
 }
 
 // int main() {
@@ -141,5 +149,5 @@ int main() {
 
 // TODO free memory xdd
 
-return EXIT_SUCCESS;
-}
+//return EXIT_SUCCESS;
+//}

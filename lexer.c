@@ -1,4 +1,6 @@
 #include "stack.h"
+#include "lexer.h"
+#include "tokens.h"
 #include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -94,7 +96,7 @@ int get_cond_op_type(char *str) {
   return TYPE_NONE;
 }
 
-void parse_code(char *code, node_t *top) {
+void parse_code(char *code, sstack_t *top) {
   if (regcomp(&var_regex, IS_VAR, REG_EXTENDED)) {
     fprintf(stderr, "Lexer error: Failed to compile var_regex");
     exit(1);

@@ -44,29 +44,12 @@ node_t *get_last_node(sstack_t *stack) {
 // nodes must have besides `next` the `prev` field
 // and basicaly this function should
 // do the push operation in reverse..
-void append_node(node_t *top, node_t *nnew) {
-  if (top->tok_class == CLASS_NONE) {
-    //        printf("added as first: %s\n", new->str);
-    *top = *nnew;
-    return;
-  }
+int append_node(sstack_t *top, node_t *nnew) {
+  node_t *last = get_last_node(top);
+  if(last == NULL) return 0;
 
-  if (top->next == NULL) {
-    //        printf("added second after %s: %s\n", top->str, new->str);
-    top->next = nnew;
-
-    //        printf("%s\n", top->next->str);
-    return;
-  }
-
-  node_t *curr = top;
-  while (curr->next != NULL) {
-    //        printf("skipping %s\n", curr->str);
-    curr = curr->next;
-  }
-
-  //    printf("added new after %s: %s\n", curr->str, new->str);
-  curr->next = nnew;
+  last->next = nnew;
+  return 1;
 }
 
 sstack_t *init_stack() {
