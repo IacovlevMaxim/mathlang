@@ -1,11 +1,14 @@
 #include "stack.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 node_t *init_node() {
   node_t *node;
   node = malloc(sizeof(node_t));
-  if (node == NULL)
+  if (node == NULL) {
+    fprintf(stderr, "init_node error: failed to allocate memory\n");
     return NULL;
+  }
   // node->data = alloc_data_of(type);
   node->next = NULL;
   return node;
@@ -30,14 +33,17 @@ node_t *pop_node(sstack_t *stack) {
 }
 
 node_t *get_last_node(sstack_t *stack) {
-    if(stack->node == NULL) return NULL;
+  if (stack->node == NULL) {
+    // fprintf(stderr, "get_last_node error: stack is empty\n");
+    return stack->node;
+  }
 
-    node_t *n = stack->node;
-    while(n->next != NULL) {
-        n = n->next;
-    }
+  node_t *n = stack->node;
+  while (n->next != NULL) {
+    n = n->next;
+  }
 
-    return n;
+  return n;
 }
 
 // TODO for rewrite to be possible,
@@ -46,7 +52,10 @@ node_t *get_last_node(sstack_t *stack) {
 // do the push operation in reverse..
 int append_node(sstack_t *top, node_t *nnew) {
   node_t *last = get_last_node(top);
-  if(last == NULL) return 0;
+  if (last == NULL) {
+    push_node(top, nnew);
+    return 1;
+  }
 
   last->next = nnew;
   return 1;
@@ -54,15 +63,19 @@ int append_node(sstack_t *top, node_t *nnew) {
 
 sstack_t *init_stack() {
   sstack_t *stack = malloc(sizeof(sstack_t));
-  if (stack == NULL)
+  if (stack == NULL) {
+    fprintf(stderr, "init_stack error: could not allocate memory\n");
     return NULL;
+  }
   stack->node = NULL;
   return stack;
 }
 
 int join_stacks(sstack_t *s1, sstack_t *s2) {
-  if (s1 == NULL || s2 == NULL || s2->node == NULL)
+  if (s1 == NULL || s2 == NULL || s2->node == NULL) {
+    fprintf(stderr, "join_stacks error\n");
     return 0;
+  }
 
   node_t *last = get_last_node(s1);
   last->next = s2->node;

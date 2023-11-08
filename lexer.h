@@ -7,16 +7,16 @@
 
 #include "stack.h"
 
-int is_integer(char* str);
-int is_float(char* str);
-int get_op_type(char* str);
+int is_integer(char *str);
+int is_float(char *str);
+int get_op_type(char *str);
 
 typedef struct var {
-    char* name;
-    int type;
+  char *name;
+  int type;
 } var;
 
-void parse_code(char* code, sstack_t *top);
+void parse_code(char *code, sstack_t *top, int debug);
 // Tokens will be stored in an array, eg. node_t* tokens[], so the parser can
 // traverse them easily. node_t is in parser.h. the `next` and `val` field
 // should be left alone.
