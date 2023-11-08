@@ -20,8 +20,20 @@ int main() {
   printf("Code:\n///\n%s\n///\n", code);
   //  node_t node = EMPTY_DATA;
   sstack_t *stack = init_stack();
-  parse_code(code, stack);
 
+  //After using variables, use free(variables);
+  var *variables;
+  tokenize(code, stack, &variables);
+
+  int i = 0;
+  printf("Variables:\n");
+  var* currVar;
+  while((currVar = (variables + i))->type) {
+      printf("%s: %d\n", currVar->name, currVar->type);
+      i++;
+  }
+
+  //After using nodes, use free(node) for each node
   node_t *curr = pop_node(stack);
   while (curr != NULL) {
     printf("%s", curr->str);

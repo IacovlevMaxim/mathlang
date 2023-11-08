@@ -6,6 +6,7 @@
 #define MATHLANG_LEXER_H
 
 #include "stack.h"
+#define MAX_VAR_AMOUNT 10
 
 int is_integer(char* str);
 int is_float(char* str);
@@ -16,7 +17,7 @@ typedef struct var {
     int type;
 } var;
 
-void parse_code(char* code, sstack_t *top);
+void tokenize(char* code, sstack_t *top, var **variables);
 // Tokens will be stored in an array, eg. node_t* tokens[], so the parser can
 // traverse them easily. node_t is in parser.h. the `next` and `val` field
 // should be left alone.

@@ -6,8 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_VAR_AMOUNT 10
-
 // Maybe without the caret?
 const char *IS_VAR = "^[a-zA-Z_][a-zA-Z0-9]*";
 
@@ -94,13 +92,13 @@ int get_cond_op_type(char *str) {
   return TYPE_NONE;
 }
 
-void parse_code(char *code, sstack_t *top) {
+void tokenize(char *code, sstack_t *top, var **variables) {
   if (regcomp(&var_regex, IS_VAR, REG_EXTENDED)) {
     fprintf(stderr, "Lexer error: Failed to compile var_regex");
     exit(1);
   }
 
-  var vars[MAX_VAR_AMOUNT];
+  var *vars = malloc(sizeof(var) * MAX_VAR_AMOUNT);
   int curr_type = TYPE_NONE;
   int var_amount = 0;
   int line_count = 0;
@@ -209,6 +207,9 @@ void parse_code(char *code, sstack_t *top) {
     token[0] = '\0';
     append_node(top, curr);
   }
+
+  free(token);
+  *variables = vars;
 }
 
 // int main(void) {
@@ -225,7 +226,7 @@ void parse_code(char *code, sstack_t *top) {
 //
 //     printf("Code:\n///\n%s\n///\n", code);
 //     node_t node = EMPTY_DATA;
-//     parse_code(code, &node);
+//     tokenize(code, &node);
 //     printf("Node contents:\n");
 //     printf("str: %s\n", node.str);
 //     printf("type: %d\n", node.tok_type);
