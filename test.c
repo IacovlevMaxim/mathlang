@@ -12,8 +12,10 @@ int main() {
                "{\n"
                "asg a 1\n"
                "asg b 1.23\n"
+               "if gt b 1 {\n"
                "while not eq a 10 {\n"
                "asg a add a 1\n"
+               "}\n"
                "}\n"
                "}\n";
 
