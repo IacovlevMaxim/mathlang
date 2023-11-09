@@ -31,6 +31,6 @@ node_t *pop_node(sstack_t *stack);
 int append_node(sstack_t *top, node_t *nnew);
 
 sstack_t *init_stack();
-int join_stacks(sstack_t *s1, sstack_t *s2);
+int join_stacks(sstack_t *s1, sstack_t *s2, int debug);
 
 #endif // MATHLANG_STACK_H

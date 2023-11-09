@@ -17,20 +17,21 @@ int main() {
                "}\n"
                "}\n";
 
-  printf("Code:\n///\n%s\n///\n", code);
-  //  node_t node = EMPTY_DATA;
+  printf("Code:\n///\n%s///\n", code);
+  //   node_t node = EMPTY_DATA;
   sstack_t *stack = init_stack();
   parse_code(code, stack, 0);
 
-  sstack_t *caveman_tree = parse_all(stack);
+  sstack_t *caveman_tree = parse_all(stack, 0);
   if (caveman_tree == NULL) {
     fprintf(stderr, "Test Error: parser failed.\n");
     exit(1);
   }
-
+  printf("Parsed:\n");
   node_t *curr = pop_node(caveman_tree);
   while (curr != NULL) {
     printf("%s ", curr->str);
     curr = pop_node(caveman_tree);
   }
+  printf("\n");
 }
