@@ -82,7 +82,6 @@ sstack_t *parse_main(sstack_t *stack, int debug) {
 
 sstack_t *parse_all(sstack_t *stack, int debug) {
   node_t *n;
-  sstack_t *caveman_tree = init_stack();
 
   while ((n = pop_node(stack)) && n->next->tok_class != PUNCT && n != NULL) {
     // printf("%s\n", n->str);
