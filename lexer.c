@@ -101,7 +101,9 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
 //  var vars[MAX_VAR_AMOUNT];
   int curr_type = TYPE_NONE;
   int var_amount = 0;
-  int line_count = 0;
+  int line_count = 1;
+  int depth = 0;
+  int skip_append = 0;
 
   char *token = malloc(sizeof(char) * strlen(code));
 
@@ -132,23 +134,47 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
     int cond_op_type = get_cond_op_type(token);
 
     if (strcmp(token, "int") == 0) {
+      if(depth > 0) {
+          fprintf(stderr, "Lexer error: Definition of variable in main block on line %d", line_count);
+          exit(1);
+      }
       curr_type = INT;
-      curr->tok_class = DEF_OP;
-      curr->tok_type = DEF_INT;
-      curr->str = strdup(token);
+      skip_append = 1;
+//      curr->tok_class = DEF_OP;
+//      curr->tok_type = DEF_INT;
+//      curr->str = strdup(token);
     } else if (strcmp(token, "float") == 0) {
-      curr_type = FLOAT;
-      curr->tok_class = DEF_OP;
-      curr->tok_type = DEF_FLOAT;
-      curr->str = strdup(token);
+        if(depth > 0) {
+            fprintf(stderr, "Lexer error: Definition of variable in main block on line %d", line_count);
+            exit(1);
+        }
+        curr_type = FLOAT;
+        skip_append = 1;
+//      curr->tok_class = DEF_OP;
+//      curr->tok_type = DEF_FLOAT;
+//      curr->str = strdup(token);
     } else if (strcmp(token, "{") == 0) {
-      curr->tok_class = PUNCT;
-      curr->tok_type = L_BRACE;
-      curr->str = "{";
+      depth++;
+      if(depth != 1) {
+          curr->tok_class = PUNCT;
+          curr->tok_type = L_BRACE;
+          curr->str = "{";
+      } else {
+          skip_append = 1;
+      }
     } else if (strcmp(token, "}") == 0) {
-      curr->tok_class = PUNCT;
-      curr->tok_type = R_BRACE;
-      curr->str = "}";
+      depth--;
+      if(depth < 0) {
+          fprintf(stderr, "Lexer error: Extra right bracket on line %d", line_count);
+          exit(1);
+      }
+      if(depth > 0) {
+          curr->tok_class = PUNCT;
+          curr->tok_type = R_BRACE;
+          curr->str = "}";
+      } else {
+          skip_append = 1;
+      }
     } else if (op_type != TYPE_NONE) {
       curr->tok_class = OPERATION;
       curr->tok_type = op_type;
@@ -166,6 +192,7 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
       curr->tok_type = FLOAT;
       curr->str = strdup(token);
     } else if (!regexec(&var_regex, token, 0, NULL, 0)) {
+      if(depth == 0) skip_append = 1;
       int exists = 0;
       for (int j = 0; j < var_amount; j++) {
 //        if (strcmp(vars[j].name, token) == 0) {
@@ -225,10 +252,19 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
     token[0] = '\0';
     if (debug)
       printf("to append: '%s'\n", curr->str);
+    if(skip_append == 1) {
+        skip_append = 0;
+        continue;
+    }
     if (append_node(top, curr) == 0) {
       fprintf(stderr, "Lexer error: failed to append token '%s'\n", curr->str);
       exit(1);
     }
+  }
+
+  if(depth != 0) {
+      fprintf(stderr, "Lexer error: Not all code blocks are enclosed");
+      exit(1);
   }
 
   free(token);

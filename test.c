@@ -25,7 +25,23 @@ int main() {
 
   //After using variables, use free(variables);
   var *variables = malloc(sizeof(var) * MAX_VAR_AMOUNT);
-  tokenize(code, stack, &variables, 1);
+  tokenize(code, stack, &variables, 0);
+
+    node_t *stack_curr = stack->node;
+
+    while(stack_curr != NULL) {
+        printf("class: %d\n", stack_curr->tok_class);
+        printf("type: %d\n", stack_curr->tok_type);
+        printf("str: %s\n", stack_curr->str);
+        printf("------\n");
+
+        stack_curr = stack_curr->next;
+//      token_class_t tok_class;
+//      token_type_t tok_type;
+//      char *str;
+//      // size_t no_line;
+//      node_val_t *val;
+    }
 
 
   int i = 0;
