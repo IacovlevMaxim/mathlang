@@ -6,8 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_VAR_AMOUNT 10
-
 // Maybe without the caret?
 const char *IS_VAR = "^[a-zA-Z_][a-zA-Z0-9]*";
 
@@ -100,7 +98,7 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
     exit(1);
   }
 
-  var vars[MAX_VAR_AMOUNT];
+//  var vars[MAX_VAR_AMOUNT];
   int curr_type = TYPE_NONE;
   int var_amount = 0;
   int line_count = 0;
@@ -170,7 +168,8 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
     } else if (!regexec(&var_regex, token, 0, NULL, 0)) {
       int exists = 0;
       for (int j = 0; j < var_amount; j++) {
-        if (strcmp(vars[j].name, token) == 0) {
+//        if (strcmp(vars[j].name, token) == 0) {
+        if(strcmp((*variables + j)->name, token) == 0) {
           exists = 1;
           break;
         }
@@ -182,8 +181,21 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
                   MAX_VAR_AMOUNT);
           exit(1);
         }
-        var new_var = {strdup(token), curr_type};
-        vars[var_amount] = new_var;
+        var new_var = {
+                strdup(token),
+                curr_type
+        };
+        if(curr_type == INT) {
+            new_var.value.i = 0;
+        } else if(curr_type == FLOAT) {
+            new_var.value.f = 0;
+        } else {
+            fprintf(stderr, "Lexer error: No type definition for variable '%s' on line %d",
+                    token, line_count);
+            exit(1);
+        }
+//        vars[var_amount] = new_var;
+          *(*variables + var_amount) = new_var;
         var_amount++;
       } else if (curr_type != TYPE_NONE) {
         fprintf(stderr, "Lexer error: Redefining variable '%s' on line %d",
@@ -220,7 +232,7 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
   }
 
   free(token);
-  *variables = vars;
+//  *variables = vars;
 }
 
 // int main(void) {

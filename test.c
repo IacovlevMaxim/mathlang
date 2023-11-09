@@ -24,15 +24,23 @@ int main() {
   sstack_t *stack = init_stack();
 
   //After using variables, use free(variables);
-  var *variables;
-  tokenize(code, stack, &variables, 0);
+  var *variables = malloc(sizeof(var) * MAX_VAR_AMOUNT);
+  tokenize(code, stack, &variables, 1);
 
 
   int i = 0;
   printf("Variables:\n");
   var* currVar;
   while((currVar = (variables + i))->type) {
-      printf("%s: %d\n", currVar->name, currVar->type);
+      printf("%s: %d with val ", currVar->name, currVar->type);
+      if(currVar->type == INT) {
+          printf("%d\n", currVar->value.i);
+      } else if(currVar->type == FLOAT) {
+          printf("%f\n", currVar->value.f);
+      } else {
+          printf("No type for variable!");
+          exit(1);
+      }
       i++;
   }
 
