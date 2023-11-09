@@ -82,5 +82,6 @@ int join_stacks(sstack_t *s1, sstack_t *s2, int debug) {
 
     last->next = s2->node;
   }
+  free(s2);
   return 1;
 }
