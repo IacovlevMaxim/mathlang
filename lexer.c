@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_VAR_AMOUNT 10
+
 // Maybe without the caret?
 const char *IS_VAR = "^[a-zA-Z_][a-zA-Z0-9]*";
 
@@ -92,13 +94,13 @@ int get_cond_op_type(char *str) {
   return TYPE_NONE;
 }
 
-void tokenize(char *code, sstack_t *top, var **variables) {
+void tokenize(char *code, sstack_t *top, var **variables, int debug) {
   if (regcomp(&var_regex, IS_VAR, REG_EXTENDED)) {
     fprintf(stderr, "Lexer error: Failed to compile var_regex");
     exit(1);
   }
 
-  var *vars = malloc(sizeof(var) * MAX_VAR_AMOUNT);
+  var vars[MAX_VAR_AMOUNT];
   int curr_type = TYPE_NONE;
   int var_amount = 0;
   int line_count = 0;
@@ -107,9 +109,11 @@ void tokenize(char *code, sstack_t *top, var **variables) {
 
   for (int i = 0; i < strlen(code); i++) {
     char c = *(code + i);
-    //        printf("looking at '%c'\n", c);
+    if (debug)
+      printf("looking at '%c'\n", c);
     if (c != ' ' && c != '\n') {
-      //            printf("skipping '%c'\n", c);
+      if (debug)
+        printf("skipping '%c'\n", c);
       strncat(token, &c, 1);
       continue;
     }
@@ -117,7 +121,8 @@ void tokenize(char *code, sstack_t *top, var **variables) {
     if (c == '\n')
       line_count++;
 
-    //        printf("checking '%s'\n", token);
+    if (debug)
+      printf("checking '%s'\n", token);
     node_t *curr;
     curr = malloc(sizeof(node_t));
     if (curr == NULL) {
@@ -190,7 +195,8 @@ void tokenize(char *code, sstack_t *top, var **variables) {
       curr->tok_type = curr_type;
       curr->str = strdup(token);
 
-      //            printf("next char after %s is: '%c'", token, *(code + i));
+      if (debug)
+        printf("next char after %s is: '%c'\n", token, *(code + i));
       if (*(code + i) == '\n') {
         curr_type = TYPE_NONE;
       }
@@ -205,7 +211,12 @@ void tokenize(char *code, sstack_t *top, var **variables) {
     }
 
     token[0] = '\0';
-    append_node(top, curr);
+    if (debug)
+      printf("to append: '%s'\n", curr->str);
+    if (append_node(top, curr) == 0) {
+      fprintf(stderr, "Lexer error: failed to append token '%s'\n", curr->str);
+      exit(1);
+    }
   }
 
   free(token);
@@ -226,7 +237,7 @@ void tokenize(char *code, sstack_t *top, var **variables) {
 //
 //     printf("Code:\n///\n%s\n///\n", code);
 //     node_t node = EMPTY_DATA;
-//     tokenize(code, &node);
+//     parse_code(code, &node);
 //     printf("Node contents:\n");
 //     printf("str: %s\n", node.str);
 //     printf("type: %d\n", node.tok_type);
