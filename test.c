@@ -15,6 +15,7 @@ int main() {
                "if gt b 1 {\n"
                "while not eq a 10 {\n"
                "asg a add a 1\n"
+               "asg b add a 2\n"
                "}\n"
                "}\n"
                "}\n";
@@ -23,44 +24,43 @@ int main() {
   //   node_t node = EMPTY_DATA;
   sstack_t *stack = init_stack();
 
-  //After using variables, use free(variables);
+  // After using variables, use free(variables);
   var *variables = malloc(sizeof(var) * MAX_VAR_AMOUNT);
-  tokenize(code, stack, &variables, 0);
+  tokenize(code, stack, &variables, 1);
 
-    node_t *stack_curr = stack->node;
+  node_t *stack_curr = stack->node;
 
-    while(stack_curr != NULL) {
-        printf("class: %d\n", stack_curr->tok_class);
-        printf("type: %d\n", stack_curr->tok_type);
-        printf("str: %s\n", stack_curr->str);
-        printf("------\n");
+  while (stack_curr != NULL) {
+    printf("class: %d\n", stack_curr->tok_class);
+    printf("type: %d\n", stack_curr->tok_type);
+    printf("str: %s\n", stack_curr->str);
+    printf("------\n");
 
-        stack_curr = stack_curr->next;
-//      token_class_t tok_class;
-//      token_type_t tok_type;
-//      char *str;
-//      // size_t no_line;
-//      node_val_t *val;
-    }
-
+    stack_curr = stack_curr->next;
+    //      token_class_t tok_class;
+    //      token_type_t tok_type;
+    //      char *str;
+    //      // size_t no_line;
+    //      node_val_t *val;
+  }
 
   int i = 0;
   printf("Variables:\n");
-  var* currVar;
-  while((currVar = (variables + i))->type) {
-      printf("%s: %d with val ", currVar->name, currVar->type);
-      if(currVar->type == INT) {
-          printf("%d\n", currVar->value.i);
-      } else if(currVar->type == FLOAT) {
-          printf("%f\n", currVar->value.f);
-      } else {
-          printf("No type for variable!");
-          exit(1);
-      }
-      i++;
+  var *currVar;
+  while ((currVar = (variables + i))->type) {
+    printf("%s: %d with val ", currVar->name, currVar->type);
+    if (currVar->type == INT) {
+      printf("%d\n", currVar->value.i);
+    } else if (currVar->type == FLOAT) {
+      printf("%f\n", currVar->value.f);
+    } else {
+      printf("No type for variable!");
+      exit(1);
+    }
+    i++;
   }
 
-  //After using nodes, use free(node) for each node
+  // After using nodes, use free(node) for each node
   sstack_t *caveman_tree = parse_all(stack, 0);
   if (caveman_tree == NULL) {
     fprintf(stderr, "Test Error: parser failed.\n");
