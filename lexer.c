@@ -98,14 +98,15 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
     exit(1);
   }
 
-//  var vars[MAX_VAR_AMOUNT];
+  //  var vars[MAX_VAR_AMOUNT];
   int curr_type = TYPE_NONE;
   int var_amount = 0;
   int line_count = 1;
   int depth = 0;
   int skip_append = 0;
 
-  char *token = malloc(sizeof(char) * strlen(code));
+  // char *token = malloc(sizeof(char) * strlen(code));
+  char *token = strdup("");
 
   for (int i = 0; i < strlen(code); i++) {
     char c = *(code + i);
@@ -134,46 +135,51 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
     int cond_op_type = get_cond_op_type(token);
 
     if (strcmp(token, "int") == 0) {
-      if(depth > 0) {
-          fprintf(stderr, "Lexer error: Definition of variable in main block on line %d", line_count);
-          exit(1);
+      if (depth > 0) {
+        fprintf(stderr,
+                "Lexer error: Definition of variable in main block on line %d",
+                line_count);
+        exit(1);
       }
       curr_type = INT;
       skip_append = 1;
-//      curr->tok_class = DEF_OP;
-//      curr->tok_type = DEF_INT;
-//      curr->str = strdup(token);
+      //      curr->tok_class = DEF_OP;
+      //      curr->tok_type = DEF_INT;
+      //      curr->str = strdup(token);
     } else if (strcmp(token, "float") == 0) {
-        if(depth > 0) {
-            fprintf(stderr, "Lexer error: Definition of variable in main block on line %d", line_count);
-            exit(1);
-        }
-        curr_type = FLOAT;
-        skip_append = 1;
-//      curr->tok_class = DEF_OP;
-//      curr->tok_type = DEF_FLOAT;
-//      curr->str = strdup(token);
+      if (depth > 0) {
+        fprintf(stderr,
+                "Lexer error: Definition of variable in main block on line %d",
+                line_count);
+        exit(1);
+      }
+      curr_type = FLOAT;
+      skip_append = 1;
+      //      curr->tok_class = DEF_OP;
+      //      curr->tok_type = DEF_FLOAT;
+      //      curr->str = strdup(token);
     } else if (strcmp(token, "{") == 0) {
       depth++;
-      if(depth != 1) {
-          curr->tok_class = PUNCT;
-          curr->tok_type = L_BRACE;
-          curr->str = "{";
+      if (depth != 1) {
+        curr->tok_class = PUNCT;
+        curr->tok_type = L_BRACE;
+        curr->str = "{";
       } else {
-          skip_append = 1;
+        skip_append = 1;
       }
     } else if (strcmp(token, "}") == 0) {
       depth--;
-      if(depth < 0) {
-          fprintf(stderr, "Lexer error: Extra right bracket on line %d", line_count);
-          exit(1);
+      if (depth < 0) {
+        fprintf(stderr, "Lexer error: Extra right bracket on line %d",
+                line_count);
+        exit(1);
       }
-      if(depth > 0) {
-          curr->tok_class = PUNCT;
-          curr->tok_type = R_BRACE;
-          curr->str = "}";
+      if (depth > 0) {
+        curr->tok_class = PUNCT;
+        curr->tok_type = R_BRACE;
+        curr->str = "}";
       } else {
-          skip_append = 1;
+        skip_append = 1;
       }
     } else if (op_type != TYPE_NONE) {
       curr->tok_class = OPERATION;
@@ -192,11 +198,12 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
       curr->tok_type = FLOAT;
       curr->str = strdup(token);
     } else if (!regexec(&var_regex, token, 0, NULL, 0)) {
-      if(depth == 0) skip_append = 1;
+      if (depth == 0)
+        skip_append = 1;
       int exists = 0;
       for (int j = 0; j < var_amount; j++) {
-//        if (strcmp(vars[j].name, token) == 0) {
-        if(strcmp((*variables + j)->name, token) == 0) {
+        //        if (strcmp(vars[j].name, token) == 0) {
+        if (strcmp((*variables + j)->name, token) == 0) {
           exists = 1;
           break;
         }
@@ -208,21 +215,20 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
                   MAX_VAR_AMOUNT);
           exit(1);
         }
-        var new_var = {
-                strdup(token),
-                curr_type
-        };
-        if(curr_type == INT) {
-            new_var.value.i = 0;
-        } else if(curr_type == FLOAT) {
-            new_var.value.f = 0;
+        var new_var = {strdup(token), curr_type};
+        if (curr_type == INT) {
+          new_var.value.i = 0;
+        } else if (curr_type == FLOAT) {
+          new_var.value.f = 0;
         } else {
-            fprintf(stderr, "Lexer error: No type definition for variable '%s' on line %d",
-                    token, line_count);
-            exit(1);
+          fprintf(
+              stderr,
+              "Lexer error: No type definition for variable '%s' on line %d",
+              token, line_count);
+          exit(1);
         }
-//        vars[var_amount] = new_var;
-          *(*variables + var_amount) = new_var;
+        //        vars[var_amount] = new_var;
+        *(*variables + var_amount) = new_var;
         var_amount++;
       } else if (curr_type != TYPE_NONE) {
         fprintf(stderr, "Lexer error: Redefining variable '%s' on line %d",
@@ -249,12 +255,13 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
       exit(1);
     }
 
-    token[0] = '\0';
+    // token[0] = '\0';
+    token = strdup("");
     if (debug)
       printf("to append: '%s'\n", curr->str);
-    if(skip_append == 1) {
-        skip_append = 0;
-        continue;
+    if (skip_append == 1) {
+      skip_append = 0;
+      continue;
     }
     if (append_node(top, curr) == 0) {
       fprintf(stderr, "Lexer error: failed to append token '%s'\n", curr->str);
@@ -262,13 +269,13 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
     }
   }
 
-  if(depth != 0) {
-      fprintf(stderr, "Lexer error: Not all code blocks are enclosed");
-      exit(1);
+  if (depth != 0) {
+    fprintf(stderr, "Lexer error: Not all code blocks are enclosed");
+    exit(1);
   }
 
   free(token);
-//  *variables = vars;
+  //  *variables = vars;
 }
 
 // int main(void) {
