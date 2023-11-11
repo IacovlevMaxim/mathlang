@@ -10,13 +10,14 @@ int main() {
   char *code = "int a\n"
                "float b\n"
                "{\n"
-               "asg a 1\n"
-               "asg b 1.23\n"
-               "if gt b 1 {\n"
-               "while not eq a 10 {\n"
-               "asg a add a 1\n"
-               "}\n"
-               "}\n"
+               "\n\n"
+               "    asg a 1\n"
+               "    asg b 1.23\n"
+               "    if gt b 1 {\n"
+               "        while not eq a 10 {\n"
+               "            asg a add a 1\n"
+               "        }\n"
+               "    }\n"
                "}\n";
 
   printf("Code:\n///\n%s///\n", code);
@@ -25,7 +26,7 @@ int main() {
 
   //After using variables, use free(variables);
   var *variables = malloc(sizeof(var) * MAX_VAR_AMOUNT);
-  tokenize(code, stack, &variables, 0);
+  tokenize(code, stack, &variables, 1);
 
     node_t *stack_curr = stack->node;
 

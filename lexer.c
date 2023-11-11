@@ -110,12 +110,17 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
   for (int i = 0; i < strlen(code); i++) {
     char c = *(code + i);
     if (debug)
-      printf("looking at '%c'\n", c);
-    if (c != ' ' && c != '\n') {
+      printf("looking at '%c' (%d)\n", c, c);
+    if (c != ' ' && c != '\n' && c != '\t') {
       if (debug)
         printf("skipping '%c'\n", c);
       strncat(token, &c, 1);
       continue;
+    }
+
+    if(strlen(token) == 0) {
+        printf("skipping '%s'", token);
+        continue;
     }
 
     if (c == '\n')
@@ -240,16 +245,15 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
         curr_type = TYPE_NONE;
       }
     } else {
-      if (strcmp(token, "") == 0) {
-        fprintf(stderr, "Lexer error: Empty line %d", line_count);
-      } else {
-        fprintf(stderr, "Lexer error: Unexpected token '%s' on line %d", token,
-                line_count);
+      if (strcmp(token, "") != 0) {
+          fprintf(stderr, "Lexer error: Unexpected token '%s' on line %d", token,
+                  line_count);
       }
       exit(1);
     }
 
-    token[0] = '\0';
+//    token[0] = '\0';
+    token = strdup("");
     if (debug)
       printf("to append: '%s'\n", curr->str);
     if(skip_append == 1) {
