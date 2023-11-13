@@ -3,22 +3,47 @@
 #include "stack.h"
 #include "stdio.h"
 #include <stdlib.h>
+#include <string.h>
 
 // const int SIZE = 20;
 
+void input_code(char** code) {
+    printf("Input code:\n");
+    int main_code = 0, depth = 0;
+    char *line = strdup("");
+
+    while(1) {
+//        scanf("%s\n", line);
+        fgets(line, 64, stdin);
+        for(int i = 0; line[i] != '\0';i++) {
+            if(line[i] == '{') {
+                if(main_code == 0) main_code = 1;
+                depth++;
+            } else if(line[i] == '}') {
+                depth--;
+            }
+        }
+
+        strcat(*code, line);
+        if(main_code == 1 && depth == 0) return;
+    }
+}
+
 int main() {
-  char *code = "int a\n"
-               "float b\n"
-               "{\n"
-               "\n\n"
-               "    asg a 1\n"
-               "    asg b 1.23\n"
-               "    if gt b 1 {\n"
-               "        while not eq a 10 {\n"
-               "            asg a add a 1\n"
-               "        }\n"
-               "    }\n"
-               "}\n";
+    char *code = malloc(sizeof(char) * 256);
+    input_code(&code);
+//  char *code = "int a\n"
+//               "float b\n"
+//               "{\n"
+//               "\n\n"
+//               "    asg a 1\n"
+//               "    asg b 1.23\n"
+//               "    if gt b 1 {\n"
+//               "        while not eq a 10 {\n"
+//               "            asg a add a 1\n"
+//               "        }\n"
+//               "    }\n"
+//               "}\n";
 
   printf("Code:\n///\n%s///\n", code);
   //   node_t node = EMPTY_DATA;
