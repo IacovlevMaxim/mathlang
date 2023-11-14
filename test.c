@@ -16,8 +16,11 @@ int main() {
                "while not eq a 10 {\n"
                "asg a add a 1\n"
                "asg b add a 2\n"
+               "while eq a b asg a 1\n"
                "}\n"
                "}\n"
+               "else asg b 1\n"
+               "asg b 0.2\n"
                "}\n";
 
   printf("Code:\n///\n%s///\n", code);
@@ -47,21 +50,21 @@ int main() {
   int i = 0;
   printf("Variables:\n");
   var *currVar;
-  while ((currVar = (variables + i))->type) {
+  while ((currVar = (variables + i))->type != 0) {
     printf("%s: %d with val ", currVar->name, currVar->type);
     if (currVar->type == INT) {
       printf("%d\n", currVar->value.i);
     } else if (currVar->type == FLOAT) {
       printf("%f\n", currVar->value.f);
     } else {
-      printf("No type for variable!");
+      printf("Test Error: No type for variable!\n");
       exit(1);
     }
     i++;
   }
 
   // After using nodes, use free(node) for each node
-  sstack_t *caveman_tree = parse_all(stack, 0);
+  sstack_t *caveman_tree = parse_tokens(stack, 1);
   if (caveman_tree == NULL) {
     fprintf(stderr, "Test Error: parser failed.\n");
     exit(1);
@@ -70,6 +73,7 @@ int main() {
   node_t *curr = pop_node(caveman_tree);
   while (curr != NULL) {
     printf("%s ", curr->str);
+    free(curr);
     curr = pop_node(caveman_tree);
   }
   printf("\n");
