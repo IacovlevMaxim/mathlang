@@ -111,11 +111,17 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
   for (int i = 0; i < strlen(code); i++) {
     char c = *(code + i);
     if (debug)
-      printf("looking at '%c'\n", c);
-    if (c != ' ' && c != '\n') {
+      printf("looking at '%c' (%d)\n", c, c);
+    if (c != ' ' && c != '\n' && c != '\t') {
       if (debug)
         printf("skipping '%c'\n", c);
       strncat(token, &c, 1);
+      continue;
+    }
+
+    if (strlen(token) == 0) {
+      if (debug)
+        printf("skipping '%s'", token);
       continue;
     }
 
@@ -124,6 +130,7 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
 
     if (debug)
       printf("checking '%s'\n", token);
+
     node_t *curr;
     curr = malloc(sizeof(node_t));
     if (curr == NULL) {
@@ -200,16 +207,16 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
     } else if (!regexec(&var_regex, token, 0, NULL, 0)) {
       if (depth == 0)
         skip_append = 1;
-      int exists = 0;
+      int var_type = TYPE_NONE;
+
       for (int j = 0; j < var_amount; j++) {
-        //        if (strcmp(vars[j].name, token) == 0) {
         if (strcmp((*variables + j)->name, token) == 0) {
-          exists = 1;
+          var_type = (*variables + j)->type;
           break;
         }
       }
 
-      if (exists == 0) {
+      if (var_type == TYPE_NONE) {
         if (var_amount == MAX_VAR_AMOUNT) {
           fprintf(stderr, "Lexer error: Reached max amount of variables (%d)",
                   MAX_VAR_AMOUNT);
@@ -237,7 +244,18 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
       }
 
       curr->tok_class = ID;
-      curr->tok_type = curr_type;
+      if (var_type != TYPE_NONE) {
+        curr->tok_type = var_type;
+      } else {
+        curr->tok_type = curr_type;
+      }
+
+      if (curr->tok_type == 0) {
+        fprintf(stderr, "Lexer error: No type definition for variable '%s'",
+                token);
+        exit(1);
+      }
+
       curr->str = strdup(token);
 
       if (debug)
@@ -246,12 +264,11 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
         curr_type = TYPE_NONE;
       }
     } else {
-      if (strcmp(token, "") == 0) {
-        fprintf(stderr, "Lexer error: Empty line %d", line_count);
-      } else {
-        fprintf(stderr, "Lexer error: Unexpected token '%s' on line %d", token,
-                line_count);
-      }
+      //      if (strcmp(token, "") != 0) {
+      fprintf(stderr, "Lexer error: Unexpected token '%s' on line %d", token,
+              line_count);
+
+      //      }
       exit(1);
     }
 
