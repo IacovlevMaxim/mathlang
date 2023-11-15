@@ -141,12 +141,26 @@ node_t* add(sstack_t *params, int debug) {
         res->val->f = get_float_value(to) + get_float_value(from);
         if(debug) printf("res f: %f\n", res->val->f);
     } else {
-        fprintf(stderr, "Interpreter error: add argument types (neither floats nor ints)\n");
+        fprintf(stderr, "Interpreter error: invalid argument types (neither floats nor ints)\n");
         exit(1);
     }
 
-
     return res;
+}
+
+node_t* sub(sstack_t *params, int debug) {
+    if(debug) printf("Started dec\n");
+    node_t* node = params->node;
+    if(node->tok_type == INT) {
+        node->val->i *= -1;
+    } else if(node->tok_type == FLOAT) {
+        node->val->f *= -1;
+    } else {
+        fprintf(stderr, "Interpreter error: invalid argument type (neither floats nor ints)\n");
+        exit(1);
+    }
+
+    return add(params, debug);
 }
 
 //node_t* add(sstack_t *params, int debug) {
@@ -226,6 +240,12 @@ void interpret(sstack_t* stack, var **variables, int debug) {
                 node_t *add_res = add(new_stack, 1);
                 push_node(new_stack, add_res);
 //                printf("add res value: %f\n", pop_node(new_stack)->val->f);
+                break;
+            case SUB:
+                if(debug) printf("sub operation\n");
+                node_t *sub_res = sub(new_stack, 1);
+                push_node(new_stack, sub_res);
+                printf("dec res value: %f\n", pop_node(new_stack)->val->f);
                 break;
             default:
                 printf("Operation is not supported\n");
