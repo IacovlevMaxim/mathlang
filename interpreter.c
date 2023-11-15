@@ -18,8 +18,8 @@ var* get_variable(var** variables, char** name) {
 }
 
 void asg(sstack_t *params, var **variables, int debug) {
-    node_t *to = params->node;
-    node_t *from = to->next;
+    node_t *to = pop_node(params);
+    node_t *from = pop_node(params);
 
     if(to->tok_class != ID) {
         fprintf(stderr, "Interpreter error: assignment target is not a variable: %s\n", to->str);
@@ -103,8 +103,101 @@ void asg(sstack_t *params, var **variables, int debug) {
             fprintf(stderr, "Interpreter error: invalid assignment target variable type %d\n", to_var->type);
             exit(1);
     }
+
+    free(to);
+    free(from);
 }
 
+node_t* add(sstack_t *params, int debug) {
+    if(debug) printf("Started add\n");
+    node_t *to = pop_node(params);
+    node_t *from = pop_node(params);
+
+    if(debug) printf("Popped nodes\n");
+    node_t *res = init_node();
+    res->tok_class = VALUE;
+
+    if(debug) printf("Created res node\n");
+    if(to->tok_type == INT && from->tok_type == INT) {
+        if(debug) printf("int int\n");
+        res->tok_type = INT;
+        res->val->i = to->val->i + from->val->i;
+    } else if(to->tok_type == FLOAT && from->tok_type == INT) {
+        if(debug) {
+            printf("float int\n");
+            printf("to f: %f\n", to->val->f);
+            printf("from int: %d\n", from->val->i);
+        }
+
+        res->tok_type = FLOAT;
+        res->val->f = to->val->f + (float) from->val->i;
+        if(debug) printf("res f: %f\n", res->val->f);
+    } else if(to->tok_type == INT && from->tok_type == FLOAT) {
+        if(debug) printf("int float\n");
+        res->tok_type = FLOAT;
+        res->val->f = (float) to->val->i + from->val->f;
+    } else if(to->tok_type == FLOAT && from->tok_type == FLOAT) {
+        if(debug) printf("float float\n");
+        res->tok_type = FLOAT;
+        res->val->f = to->val->f + from->val->f;
+    } else {
+        fprintf(stderr, "Interpreter error: add argument types (neither floats nor ints)\n");
+        exit(1);
+    }
+
+
+    return res;
+}
+
+//node_t* add(sstack_t *params, int debug) {
+//    if(debug) printf("Started add\n");
+//    node_t *to = pop_node(params);
+//    printf("%u\n", to);
+//    node_t *from = pop_node(params);
+//    printf("%u\n", from);
+//
+//
+//    if(debug) printf("got nodes\n");
+//    if(to == NULL) {
+//        fprintf(stderr, "Interpreter error: no target variable in add operation\n");
+//        exit(1);
+//    }
+//
+//    if(from == NULL) {
+//        fprintf(stderr, "Interpreter error: no source variable/value in add operation\n");
+//        exit(1);
+//    }
+//    if(debug) printf("done null checking\n");
+//
+//    if(from->tok_type == INT && to->tok_type == INT) {
+//        if(debug) printf("both are ints\n");
+//        *from->val->i += *to->val->i;
+//        free(to);
+//        return from;
+//    }
+//    printf("aaaa\n");
+//    if(debug) printf("trying to declare floats*\n");
+//    printf("aaaa\n");
+//
+//    if(from->val->f == NULL) {
+//        if(debug) printf("from_f is null (converting to float from int)\n");
+//        float tt = (float)*from->val->i;
+//        *from->val->f = tt;
+//    }
+//    printf("aaaa\n");
+//
+//    if(to->val->f == NULL) {
+//        if(debug) printf("to_f is null (adding its int val to itself)\n");
+//        *from->val->f += (float) *to->val->i;
+//    } else {
+//        if(debug) printf("to_f is null (adding its int val to itself)\n");
+//        *from->val->f += *to->val->f;
+//    }
+//    printf("aaaa\n");
+//
+//    free(to);
+//    return from;
+//}
 //Stack example:
 // 1 a asg 1.23 b asg if 1 b gt { while 10 a eq not 1 a add a asg }
 // ^
@@ -127,8 +220,16 @@ void interpret(sstack_t* stack, var **variables, int debug) {
             case ASG:
                 if(debug) printf("asg operation\n");
                 asg(new_stack, variables, 1);
+                break;
+            case ADD:
+                if(debug) printf("add operation\n");
+                node_t *add_res = add(new_stack, 1);
+                push_node(new_stack, add_res);
+//                printf("add res value: %f\n", pop_node(new_stack)->val->f);
+                break;
             default:
                 printf("Operation is not supported\n");
+                break;
 
         }
     }

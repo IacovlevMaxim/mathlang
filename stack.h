@@ -7,8 +7,8 @@
 #include "tokens.h"
 
 typedef union {
-  float *f;
-  int *i;
+  float f;
+  int i;
 } node_val_t;
 
 typedef struct node_t {
@@ -30,7 +30,6 @@ int push_node(sstack_t *stack, node_t *to_push);
 node_t *pop_node(sstack_t *stack);
 int append_node(sstack_t *top, node_t *nnew);
 
-sstack_t *init_stack();
 int join_stacks(sstack_t *s1, sstack_t *s2, int debug);
 
 #endif // MATHLANG_STACK_H

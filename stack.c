@@ -10,6 +10,7 @@ node_t *init_node() {
     return NULL;
   }
   // node->data = alloc_data_of(type);
+  node->val = malloc(sizeof(node_val_t));
   node->next = NULL;
   return node;
 }
