@@ -194,6 +194,24 @@ node_t* mul(sstack_t *params, int debug) {
 
     return res;
 }
+
+node_t* divv(sstack_t *params, int debug) {
+    if(debug) printf("Started dec\n");
+    node_t* node = params->node;
+    if(node->tok_type == INT || node->tok_type == FLOAT) {
+        float val = get_float_value(node);
+        if(val == 0) {
+            fprintf(stderr, "Interpreter error: division by zero\n");
+            exit(1);
+        }
+        node->val->f = 1 / val;
+    } else {
+        fprintf(stderr, "Interpreter error: invalid argument type (neither floats nor ints)\n");
+        exit(1);
+    }
+
+    return mul(params, debug);
+}
 //Stack example:
 // 1 a asg 1.23 b asg if 1 b gt { while 10 a eq not 1 a add a asg }
 // ^
@@ -234,6 +252,12 @@ void interpret(sstack_t* stack, var **variables, int debug) {
                 node_t *mul_res = mul(new_stack, 1);
                 push_node(new_stack, mul_res);
                 printf("mul res value: %f\n", pop_node(new_stack)->val->f);
+                break;
+            case DIV:
+                if(debug) printf("sub operation\n");
+                node_t *div_res = divv(new_stack, 1);
+                push_node(new_stack, div_res);
+                printf("div res value: %f\n", pop_node(new_stack)->val->f);
                 break;
             default:
                 printf("Operation is not supported\n");
