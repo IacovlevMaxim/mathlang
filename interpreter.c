@@ -118,8 +118,8 @@ void asg(sstack_t *params, var **variables, int debug) {
 
 node_t* add(sstack_t *params, int debug) {
     if(debug) printf("Started add\n");
-    node_t *to = pop_node(params);
     node_t *from = pop_node(params);
+    node_t *to = pop_node(params);
 
     if(debug) printf("Popped nodes\n");
     node_t *res = init_node();
@@ -165,8 +165,8 @@ node_t* sub(sstack_t *params, int debug) {
 
 node_t* mul(sstack_t *params, int debug) {
     if(debug) printf("Started mul\n");
-    node_t *to = pop_node(params);
     node_t *from = pop_node(params);
+    node_t *to = pop_node(params);
 
     if(debug) printf("Popped nodes\n");
     node_t *res = init_node();
