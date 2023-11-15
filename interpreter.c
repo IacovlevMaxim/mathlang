@@ -17,6 +17,14 @@ var* get_variable(var** variables, char** name) {
     return NULL;
 }
 
+float get_float_value(node_t* node) {
+    if(node->tok_type == FLOAT) {
+        return node->val->f;
+    }
+
+    return (float) node->val->i;
+}
+
 void asg(sstack_t *params, var **variables, int debug) {
     node_t *to = pop_node(params);
     node_t *from = pop_node(params);
@@ -122,24 +130,16 @@ node_t* add(sstack_t *params, int debug) {
         if(debug) printf("int int\n");
         res->tok_type = INT;
         res->val->i = to->val->i + from->val->i;
-    } else if(to->tok_type == FLOAT && from->tok_type == INT) {
+    } else if(to->tok_type == FLOAT || from->tok_type == FLOAT) {
         if(debug) {
             printf("float int\n");
-            printf("to f: %f\n", to->val->f);
-            printf("from int: %d\n", from->val->i);
+            printf("to f: %f\n", get_float_value(to) );
+            printf("from int: %f\n", get_float_value(from));
         }
 
         res->tok_type = FLOAT;
-        res->val->f = to->val->f + (float) from->val->i;
+        res->val->f = get_float_value(to) + get_float_value(from);
         if(debug) printf("res f: %f\n", res->val->f);
-    } else if(to->tok_type == INT && from->tok_type == FLOAT) {
-        if(debug) printf("int float\n");
-        res->tok_type = FLOAT;
-        res->val->f = (float) to->val->i + from->val->f;
-    } else if(to->tok_type == FLOAT && from->tok_type == FLOAT) {
-        if(debug) printf("float float\n");
-        res->tok_type = FLOAT;
-        res->val->f = to->val->f + from->val->f;
     } else {
         fprintf(stderr, "Interpreter error: add argument types (neither floats nor ints)\n");
         exit(1);
