@@ -276,6 +276,7 @@ node_t* lt(sstack_t *params, int debug) {
 
     return res;
 }
+
 node_t* not(sstack_t *params, int debug) {
     if (debug) printf("Started lt\n");
 
@@ -284,6 +285,24 @@ node_t* not(sstack_t *params, int debug) {
     res->tok_class = VALUE;
 
     if(get_bool(node) == 0) {
+        res->val->i = 1;
+    } else {
+        res->val->i = 0;
+    }
+
+    return res;
+}
+
+node_t* and(sstack_t *params, int debug) {
+    if (debug) printf("Started lt\n");
+
+    node_t *from = pop_node(params);
+    node_t *to = pop_node(params);
+
+    node_t *res = init_node();
+    res->tok_class = VALUE;
+
+    if(get_bool(to) && get_bool(from)) {
         res->val->i = 1;
     } else {
         res->val->i = 0;
@@ -357,10 +376,16 @@ void interpret(sstack_t* stack, var **variables, int debug) {
                 if(debug) printf("lt res value: %i\n", pop_node(new_stack)->val->i);
                 break;
             case NOT:
-                if(debug) printf("lt operation\n");
+                if(debug) printf("not operation\n");
                 node_t *not_res = not(new_stack, 1);
                 push_node(new_stack, not_res);
                 if(debug) printf("not res value: %i\n", pop_node(new_stack)->val->i);
+                break;
+            case AND:
+                if(debug) printf("and operation\n");
+                node_t *and_res = and(new_stack, 1);
+                push_node(new_stack, and_res);
+                if(debug) printf("and res value: %i\n", pop_node(new_stack)->val->i);
                 break;
             default:
                 printf("Operation is not supported\n");
