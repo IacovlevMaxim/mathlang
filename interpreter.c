@@ -234,9 +234,8 @@ node_t* eq(sstack_t *params, int debug) {
     return res;
 }
 
-
 node_t* gt(sstack_t *params, int debug) {
-    if (debug) printf("Started eq\n");
+    if (debug) printf("Started gt\n");
 
     node_t *from = pop_node(params);
     node_t *to = pop_node(params);
@@ -245,6 +244,24 @@ node_t* gt(sstack_t *params, int debug) {
     res->tok_class = VALUE;
 
     if(get_float_value(to) < get_float_value(from)) {
+        res->val->i = 1;
+    } else {
+        res->val->i = 0;
+    }
+
+    return res;
+}
+
+node_t* lt(sstack_t *params, int debug) {
+    if (debug) printf("Started lt\n");
+
+    node_t *from = pop_node(params);
+    node_t *to = pop_node(params);
+
+    node_t *res = init_node();
+    res->tok_class = VALUE;
+
+    if(get_float_value(to) > get_float_value(from)) {
         res->val->i = 1;
     } else {
         res->val->i = 0;
@@ -306,10 +323,16 @@ void interpret(sstack_t* stack, var **variables, int debug) {
                 if(debug) printf("eq res value: %i\n", pop_node(new_stack)->val->i);
                 break;
             case GT:
-                if(debug) printf("eq operation\n");
+                if(debug) printf("gt operation\n");
                 node_t *gt_res = gt(new_stack, 1);
                 push_node(new_stack, gt_res);
                 if(debug) printf("gt res value: %i\n", pop_node(new_stack)->val->i);
+                break;
+            case LT:
+                if(debug) printf("lt operation\n");
+                node_t *lt_res = lt(new_stack, 1);
+                push_node(new_stack, lt_res);
+                if(debug) printf("lt res value: %i\n", pop_node(new_stack)->val->i);
                 break;
             default:
                 printf("Operation is not supported\n");
