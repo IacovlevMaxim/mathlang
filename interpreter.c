@@ -310,6 +310,24 @@ node_t* and(sstack_t *params, int debug) {
 
     return res;
 }
+
+node_t* or(sstack_t *params, int debug) {
+    if (debug) printf("Started lt\n");
+
+    node_t *from = pop_node(params);
+    node_t *to = pop_node(params);
+
+    node_t *res = init_node();
+    res->tok_class = VALUE;
+
+    if(get_bool(to) || get_bool(from)) {
+        res->val->i = 1;
+    } else {
+        res->val->i = 0;
+    }
+
+    return res;
+}
 //Stack example:
 // 1 a asg 1.23 b asg if 1 b gt { while 10 a eq not 1 a add a asg }
 // ^
@@ -386,6 +404,12 @@ void interpret(sstack_t* stack, var **variables, int debug) {
                 node_t *and_res = and(new_stack, 1);
                 push_node(new_stack, and_res);
                 if(debug) printf("and res value: %i\n", pop_node(new_stack)->val->i);
+                break;
+            case OR:
+                if(debug) printf("or operation\n");
+                node_t *or_res = or(new_stack, 1);
+                push_node(new_stack, or_res);
+                if(debug) printf("or res value: %i\n", pop_node(new_stack)->val->i);
                 break;
             default:
                 printf("Operation is not supported\n");
