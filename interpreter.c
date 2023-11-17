@@ -28,6 +28,13 @@ float get_float_value(node_t* node) {
     return (float) node->val->i;
 }
 
+int get_bool(node_t* node) {
+    if(get_float_value(node) == 0) {
+        return 0;
+    }
+    return 1;
+}
+
 void asg(sstack_t *params, var **variables, int debug) {
     node_t *to = pop_node(params);
     node_t *from = pop_node(params);
@@ -269,6 +276,21 @@ node_t* lt(sstack_t *params, int debug) {
 
     return res;
 }
+node_t* not(sstack_t *params, int debug) {
+    if (debug) printf("Started lt\n");
+
+    node_t* node = pop_node(params);
+    node_t *res = init_node();
+    res->tok_class = VALUE;
+
+    if(get_bool(node) == 0) {
+        res->val->i = 1;
+    } else {
+        res->val->i = 0;
+    }
+
+    return res;
+}
 //Stack example:
 // 1 a asg 1.23 b asg if 1 b gt { while 10 a eq not 1 a add a asg }
 // ^
@@ -333,6 +355,12 @@ void interpret(sstack_t* stack, var **variables, int debug) {
                 node_t *lt_res = lt(new_stack, 1);
                 push_node(new_stack, lt_res);
                 if(debug) printf("lt res value: %i\n", pop_node(new_stack)->val->i);
+                break;
+            case NOT:
+                if(debug) printf("lt operation\n");
+                node_t *not_res = not(new_stack, 1);
+                push_node(new_stack, not_res);
+                if(debug) printf("not res value: %i\n", pop_node(new_stack)->val->i);
                 break;
             default:
                 printf("Operation is not supported\n");
