@@ -3,6 +3,9 @@
 #include "string.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "math.h"
+
+const double EQ_PRECISION = 0.001;
 
 var* get_variable(var** variables, char** name) {
     var *currVar;
@@ -118,8 +121,8 @@ void asg(sstack_t *params, var **variables, int debug) {
 
 node_t* add(sstack_t *params, int debug) {
     if(debug) printf("Started add\n");
-    node_t *from = pop_node(params);
     node_t *to = pop_node(params);
+    node_t *from = pop_node(params);
 
     if(debug) printf("Popped nodes\n");
     node_t *res = init_node();
@@ -165,8 +168,8 @@ node_t* sub(sstack_t *params, int debug) {
 
 node_t* mul(sstack_t *params, int debug) {
     if(debug) printf("Started mul\n");
-    node_t *from = pop_node(params);
     node_t *to = pop_node(params);
+    node_t *from = pop_node(params);
 
     if(debug) printf("Popped nodes\n");
     node_t *res = init_node();
@@ -211,6 +214,24 @@ node_t* divv(sstack_t *params, int debug) {
     }
 
     return mul(params, debug);
+}
+
+node_t* eq(sstack_t *params, int debug) {
+    if (debug) printf("Started eq\n");
+
+    node_t *n1 = pop_node(params);
+    node_t *n2 = pop_node(params);
+
+    node_t *res = init_node();
+    res->tok_class = VALUE;
+
+    if(fabsl(get_float_value(n1) - get_float_value(n2)) < EQ_PRECISION) {
+        res->val->i = 1;
+    } else {
+        res->val->i = 0;
+    }
+
+    return res;
 }
 //Stack example:
 // 1 a asg 1.23 b asg if 1 b gt { while 10 a eq not 1 a add a asg }
@@ -259,6 +280,11 @@ void interpret(sstack_t* stack, var **variables, int debug) {
                 push_node(new_stack, div_res);
                 printf("div res value: %f\n", pop_node(new_stack)->val->f);
                 break;
+            case EQ:
+                if(debug) printf("eq operation\n");
+                node_t *eq_res = eq(new_stack, 1);
+                push_node(new_stack, eq_res);
+                printf("eq res value: %i\n", pop_node(new_stack)->val->i);
             default:
                 printf("Operation is not supported\n");
                 break;
