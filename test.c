@@ -121,8 +121,7 @@ int main() {
                "{\n"
                "\n\n"
                "  asg a 1\n"
-               "  asg b 1.23\n"
-               "  asg a add a 2\n"
+               "  asg b add 1 2\n"
                "}\n";
 
   printf("Code:\n///\n%s///\n", code);

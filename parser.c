@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-sstack_t *parse_block(sstack_t *stack, int debug);
+// sstack_t *parse_block(sstack_t *stack, int debug);
 
 int parse_op(sstack_t *stack, sstack_t *op, int debug) {
 
