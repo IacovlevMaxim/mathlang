@@ -29,6 +29,7 @@ node_t *pop_node(sstack_t *stack) {
   if (stack->node == NULL)
     return NULL;
   stack->node = stack->node->next;
+  to_pop->next = NULL;
   // printf("%s\n", to_pop->str);
   return to_pop;
 }
@@ -42,8 +43,10 @@ node_t *get_last_node(sstack_t *stack) {
   node_t *n = stack->node;
   while (n->next != NULL) {
     n = n->next;
+    // printf("gotting last node xd\n");
+    // printf("nn: %s\n", n->str);
   }
-
+  // printf("got last node xd\n");
   return n;
 }
 
@@ -69,12 +72,19 @@ sstack_t *init_stack() {
 }
 
 int join_stacks(sstack_t *s1, sstack_t *s2, int debug) {
+  // printf("entered join stacks\n");
+  // printf("s1: %u\n", s1);
+  // printf("s2: %u\n", s2);
+  // printf("s2->node: %u\n", s2->node);
   if (s1 == NULL || s2 == NULL || s2->node == NULL) {
-    fprintf(stderr, "join_stacks error\n");
+    printf("join_stacks error\n");
     return 0;
   }
-
+  if (debug)
+    printf("stuff is non null\n");
   node_t *last = get_last_node(s1);
+  if (debug)
+    printf("got last node\n");
   if (debug)
     printf("s1->n: %u last->n: %u, s2->n: %u\n", s1->node, last, s2->node);
   if (last == NULL) {
