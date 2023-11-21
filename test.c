@@ -121,16 +121,16 @@ int main() {
                "{\n"
                "\n\n"
                "  asg a 1\n"
-               "  asg b add 1 2\n"
+               "  asg b add a 2.3\n"
                "}\n";
 
-  printf("Code:\n///\n%s///\n", code);
-  //   node_t node = EMPTY_DATA;
+  // printf("Code:\n///\n%s///\n", code);
+  //    node_t node = EMPTY_DATA;
   sstack_t *stack = init_stack();
 
   // After using variables, use free(variables);
   var *variables = malloc(sizeof(var) * MAX_VAR_AMOUNT);
-  tokenize(code, stack, &variables, 1);
+  tokenize(code, stack, &variables, 0);
 
   //    node_t *stack_curr = stack->node;
   //
