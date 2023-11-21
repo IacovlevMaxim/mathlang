@@ -4,7 +4,7 @@
 
 gcc test.c lexer.c parser.c interpreter.c stack.c -o test || exit 1
 
-cat  << eof | ./test.sh
+cat  << eof | ./test
 int a
 float b
 {
