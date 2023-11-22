@@ -182,9 +182,15 @@ sstack_t *parse_line(sstack_t *stack, int debug) {
 sstack_t *parse_cond_exp(sstack_t *stack, int debug) {
   sstack_t *cond_exp = init_stack();
   node_t *cond_n = pop_node(stack);
+  if (stack->node == NULL) {
+    printf("Parser Error: Unexpected end of file. Expected conditional "
+           "expression.\n");
+    return NULL;
+  }
   if (stack->node->tok_class == OPERATION)
     parse_op(stack, cond_exp, debug);
-  else if (stack->node->tok_class == ID || VALUE) //...
+  else if (stack->node->tok_class == ID ||
+           stack->node->tok_class == VALUE) //...
     push_node(cond_exp, pop_node(stack));
   push_node(cond_exp, cond_n);
   return cond_exp;
@@ -198,9 +204,16 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
     switch (stack->node->tok_type) {
     case WHILE: {
       if (debug)
-        printf("Parser Notif. From parse_chunk: Entering parse_while\n");
+        printf("Parser Notif. From parse_chunk: Entering parse_cond_exp "
+               "(while)\n");
       if (!join_stacks(parsed, parse_cond_exp(stack, debug), debug)) {
         printf("Parser Error: parse_chunk failed at WHILE case\n");
+        success = 0;
+        break;
+      }
+      if (stack->node == NULL) {
+        printf("Parser Error: Unexpected end of file, missing exec "
+               "block or line for `while` statement\n");
         success = 0;
         break;
       }
@@ -213,20 +226,35 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
           success = 0;
           break;
         }
-        if (stack->node->tok_type != R_BRACE) {
-          printf("DIE\n");
+        if (stack->node == NULL) {
+          printf(
+              "Parser Error: Unexpected end of file. `while` statement's exec "
+              "block "
+              "not terminated with `}`\n");
           success = 0;
           break;
         }
+        // if (stack->node->tok_type != R_BRACE) {
+        //   printf("DIE\n");
+        //   success = 0;
+        //   break;
+        // }
         append_node(parsed, pop_node(stack));
       }
       break;
     }
     case IF: {
       if (debug)
-        printf("Parser Notif. From parse_chunk: Entering parse_if\n");
+        printf(
+            "Parser Notif. From parse_chunk: Entering parse_cond_exp (if)\n");
       if (!join_stacks(parsed, parse_cond_exp(stack, debug), debug)) {
         printf("Parser Error: parse_chunk failed at IF case\n");
+        success = 0;
+        break;
+      }
+      if (stack->node == NULL) {
+        printf("Parser Error: Unexpected end of file, missing exec "
+               "block or line for `if` statement\n");
         success = 0;
         break;
       }
@@ -241,8 +269,15 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
         }
         if (debug)
           printf("Parser Notif. From parse_chunk: Leaving if block\n");
-        if (stack->node->tok_type != R_BRACE) {
-          printf("DIE2\n");
+        //  if (stack->node->tok_type != R_BRACE) {
+        //    printf("DIE2\n");
+        //    success = 0;
+        //    break;
+        //  }
+        if (stack->node == NULL) {
+          printf("Parser Error: Unexpected end of file. `if` statement's exec "
+                 "block "
+                 "not terminated with `}`\n");
           success = 0;
           break;
         }
@@ -256,9 +291,16 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
           break;
         }
       }
+      if (stack->node == NULL)
+        break;
       if (stack->node->tok_type == ELSE) {
         append_node(parsed, pop_node(stack));
-        // printf("misterious n->next: %p\n", pop_node(stack)->next);
+        if (stack->node == NULL) {
+          printf("Parser Error: Unexpected end of file, missing exec "
+                 "block or line for `else`\n");
+          success = 0;
+          break;
+        }
         if (stack->node->tok_type == L_BRACE) {
           if (debug)
             printf("Parser Notif. From parse_chunk: Entering else block\n");
@@ -268,16 +310,24 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
             success = 0;
             break;
           }
-          if (stack->node->tok_type != R_BRACE) {
-            printf("DIE3\n");
+          // if (stack->node->tok_type != R_BRACE) {
+          //   printf("DIE3\n");
+          //   success = 0;
+          //   break;
+          // }
+          if (stack->node == NULL) {
+            printf(
+                "Parser Error: Unexpected end of file. `if` statement's exec "
+                "block "
+                "not terminated with `}`\n");
             success = 0;
             break;
           }
           append_node(parsed, pop_node(stack));
         } else {
           if (debug)
-            printf(
-                "Parser Notif. From parse_chunk: Entering parse_line (else)\n");
+            printf("Parser Notif. From parse_chunk: Entering parse_line "
+                   "(else)\n");
           if (!join_stacks(parsed, parse_line(stack, debug), debug)) {
             printf("Parser Error: parse_chunk failed at parse_line (else)\n");
             success = 0;
@@ -301,7 +351,8 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
     }
     }
     if (success == 0) {
-      printf("Parser Msg: Exiting parser loop on encounter of error(s)\n");
+      if (debug)
+        printf("Parser Msg: Exiting parser loop on encounter of error(s)\n");
       break;
     }
   }
@@ -311,6 +362,10 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
 sstack_t *parse_tokens(sstack_t *stack, int debug) {
   if (debug)
     printf("Parser Notif. Debug mode on\n");
+  if (stack->node == NULL) {
+    printf("Parser Error: Main block is empty!\n");
+    return NULL;
+  }
   sstack_t *parsed = init_stack();
   parse_chunk(stack, parsed, -1, debug);
   return parsed;
