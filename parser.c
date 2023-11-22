@@ -86,18 +86,31 @@ int parse_op(sstack_t *stack, sstack_t *op, int debug) {
   token_type_t curr_type;
   token_type_t arg_type;
 
+  int type_persists = 0;
+
   char *op_str = stack->node->str;
   char *op_str2;
+
+  switch (stack->node->tok_type) {
+  case DIV:
+  case EQ:
+  case GT:
+  case LT:
+  case NOT:
+    type_persists = 1;
+  default:
+    break;
+  }
+
+  if (stack->node->tok_type == DIV) {
+    curr_type = FLOAT;
+  } else
+    curr_type = INT;
 
   if (stack->node->tok_type == NOT)
     max_val_count = 1;
   else
     max_val_count = 2;
-
-  if (stack->node->tok_type == DIV)
-    curr_type = FLOAT;
-  else
-    curr_type = INT;
 
   if (debug)
     printf("n: %s v_count: %i, max_v_count: %i\n", stack->node->str, val_count,
@@ -123,7 +136,7 @@ int parse_op(sstack_t *stack, sstack_t *op, int debug) {
       return -2;
     }
 
-    if (arg_type == FLOAT && curr_type == INT)
+    if (!type_persists && arg_type == FLOAT && curr_type == INT)
       curr_type = FLOAT;
     else if (arg_type == -1) {
       printf("Parser Error: expected return value, but `%s` does not return "
