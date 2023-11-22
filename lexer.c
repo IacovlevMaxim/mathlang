@@ -132,7 +132,7 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
       printf("checking '%s'\n", token);
 
     node_t *curr;
-    curr = malloc(sizeof(node_t));
+    curr = init_node();
     if (curr == NULL) {
       fprintf(stderr, "Lexer error: Failed to allocate memory for node");
       exit(1);

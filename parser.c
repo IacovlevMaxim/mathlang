@@ -18,6 +18,21 @@ char *tokttstr(token_type_t t) {
   }
 }
 
+void nodestrtval(node_t *n) {
+  // printf("%p\n", n->val);
+  switch (n->tok_type) {
+  case INT:
+    n->val->i = strtol(n->str, NULL, 0);
+    break;
+  case FLOAT:
+    n->val->f = strtof(n->str, NULL);
+    break;
+  default:
+    printf("Parser Error: Inconveretable `%s`\n", n->str);
+    exit(1);
+  }
+}
+
 int parse_op(sstack_t *stack, sstack_t *op, int debug) {
 
   if (stack->node->tok_class != OPERATION) {
@@ -96,6 +111,7 @@ int parse_op(sstack_t *stack, sstack_t *op, int debug) {
              val_count, max_val_count);
     if (stack->node->tok_class == VALUE || stack->node->tok_class == ID) {
       arg_type = stack->node->tok_type;
+      nodestrtval(stack->node);
       push_node(op, pop_node(stack));
       val_count++;
     } else if (stack->node->tok_class == OPERATION) {
