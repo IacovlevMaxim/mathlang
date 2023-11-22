@@ -29,6 +29,9 @@ typedef enum {
     WHILE,
     IF,
     ELSE,
+    // OF CONSOLE MANIPULAITON:
+    PRINT,
+    INPUT,
     // OF PUNCT:
     L_BRACE,
     R_BRACE,
