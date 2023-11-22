@@ -4,11 +4,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 // sstack_t *parse_block(sstack_t *stack, int debug);
-// TODO return the type as return value of func, and -1 as failure
-// checking
 
 char *tokttstr(token_type_t t) {
   switch (t) {
@@ -39,7 +36,7 @@ int parse_op(sstack_t *stack, sstack_t *op, int debug) {
     }
     push_node(op, pop_node(stack));
     token_type_t expd_type = stack->node->tok_type;
-    char *id_str = strdup(stack->node->str);
+    char *id_str = stack->node->str;
     push_node(op, pop_node(stack));
     if (stack->node->tok_class == VALUE || stack->node->tok_class == ID) {
       if (stack->node->tok_type != expd_type) {
@@ -146,7 +143,7 @@ sstack_t *parse_line(sstack_t *stack, int debug) {
   default:
     break;
   }
-  // todo print error with more context for value, variable, or operation.
+  // TODO print error with more context for value, variable, or operation.
   fprintf(stderr, "Parser Error: unexpected `%s`\n", n->str);
   if (n->tok_class == ID)
     printf("Parser Tip: Forgot to prepend `asg`, `input` or `print`?\n");
@@ -262,7 +259,6 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
       break;
     }
     default: {
-      // printf("bruh %s\n", stack->node->str);
       if (debug)
         printf("Parser Notif. From parse_chunk: Entering parse_line\n");
       if (!join_stacks(parsed, parse_line(stack, debug), debug)) {
