@@ -4,32 +4,93 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
+#include <string.h>
 
 // sstack_t *parse_block(sstack_t *stack, int debug);
-// TODO add  this parameter: `int expected_return_type` and implement type
+// TODO return the type as return value of func, and -1 as failure
 // checking
+
+char *tokttstr(token_type_t t) {
+  switch (t) {
+  case FLOAT:
+    return "float";
+  case INT:
+    return "int";
+  default:
+    return NULL;
+  }
+}
+
 int parse_op(sstack_t *stack, sstack_t *op, int debug) {
 
   if (stack->node->tok_class != OPERATION) {
-    printf("Parser Error: Unexpected token: %s\n", stack->node->str);
+    printf("Parser Error: Unexpected token: `%s`\n", stack->node->str);
     return 0;
   }
 
-  char *op_str = stack->node->str;
-  // token_type_t curr_type = stack->node->tok_type;
+  if (stack->node->tok_type == ASG) {
+    if (stack->node->next == NULL) {
+      printf("Parser Error: Unexpected end of code\n");
+      return -2;
+    }
+    if (stack->node->next->tok_class != ID) {
+      printf("Parser Error: `%s` is unassignable\n", stack->node->str);
+      return -2;
+    }
+    push_node(op, pop_node(stack));
+    token_type_t expd_type = stack->node->tok_type;
+    char *id_str = strdup(stack->node->str);
+    push_node(op, pop_node(stack));
+    if (stack->node->tok_class == VALUE || stack->node->tok_class == ID) {
+      if (stack->node->tok_type != expd_type) {
+        printf(
+            "Parser Error: attempting to assign `%s` of type %s the value `%s` "
+            "of type %s\n",
+            op->node->str, tokttstr(op->node->tok_type), stack->node->str,
+            tokttstr(stack->node->tok_type));
+        return -2;
+      }
+      push_node(op, pop_node(stack));
+    } else if (stack->node->tok_class == OPERATION) {
+      token_type_t res = parse_op(stack, op, debug);
+      if (res == -2)
+        return -2;
+      if (res != expd_type) {
+        printf("Parser Error: attempting to assign `%s` of type %s a return "
+               "value of type %s\n",
+               id_str, tokttstr(expd_type), tokttstr(res));
+        return -2;
+      }
+    } else {
+      printf("Parser Error: `%s` is unassignable\n", stack->node->str);
+      return -2;
+    }
+    return -1;
+  }
 
   int val_count = 0;
   int max_val_count;
+
+  token_type_t curr_type;
+  token_type_t arg_type;
+
+  char *op_str = stack->node->str;
+  char *op_str2;
 
   if (stack->node->tok_type == NOT)
     max_val_count = 1;
   else
     max_val_count = 2;
 
+  if (stack->node->tok_type == DIV)
+    curr_type = FLOAT;
+  else
+    curr_type = INT;
+
   if (debug)
     printf("n: %s v_count: %i, max_v_count: %i\n", stack->node->str, val_count,
            max_val_count);
+
   push_node(op, pop_node(stack));
 
   while (stack->node != NULL && val_count < max_val_count) {
@@ -37,34 +98,46 @@ int parse_op(sstack_t *stack, sstack_t *op, int debug) {
       printf("n: %s v_count: %i, max_v_count: %i\n", stack->node->str,
              val_count, max_val_count);
     if (stack->node->tok_class == VALUE || stack->node->tok_class == ID) {
+      arg_type = stack->node->tok_type;
       push_node(op, pop_node(stack));
       val_count++;
     } else if (stack->node->tok_class == OPERATION) {
-      parse_op(stack, op, debug);
+      op_str2 = stack->node->str;
+      arg_type = parse_op(stack, op, debug);
       val_count++;
     } else {
       printf("Parser Error: unhandled token `%s`\n", stack->node->str);
-      return 0;
+      return -2;
     }
+
+    if (arg_type == FLOAT && curr_type == INT)
+      curr_type = FLOAT;
+    else if (arg_type == -1) {
+      printf("Parser Error: expected return value, but `%s` does not return "
+             "anything\n",
+             op_str2);
+      return -2;
+    } else if (arg_type == -2)
+      return -2;
   }
-  if (val_count > max_val_count) {
-    printf("Parser Error: Illegal argument count for '%s'\n", op_str);
+
+  if (val_count < max_val_count) {
+    printf("Parser Error: Unexpected end of file. `%s` expects %i arguments "
+           "but got only %i\n",
+           op_str, max_val_count, val_count);
+    return -2;
   }
-  return 1;
+  return curr_type;
 }
 
 sstack_t *parse_line(sstack_t *stack, int debug) {
   sstack_t *op_line = init_stack();
   node_t *n = stack->node;
   switch (n->tok_type) {
-  // case R_BRACE:
-  // case L_BRACE: {
-  //   push_node(op_line, pop_node(stack));
-  //   return op_line;
-  // }
   case ASG: {
-    if (parse_op(stack, op_line, debug) == 0) {
+    if (parse_op(stack, op_line, debug) != -1) {
       fprintf(stderr, "Parser Error: parse_line: parse_op failed for ASG\n");
+      return NULL;
     }
     if (debug)
       printf("leaving parse line op\n");

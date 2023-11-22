@@ -77,7 +77,7 @@ int join_stacks(sstack_t *s1, sstack_t *s2, int debug) {
   // printf("s2: %u\n", s2);
   // printf("s2->node: %u\n", s2->node);
   if (s1 == NULL || s2 == NULL || s2->node == NULL) {
-    printf("join_stacks error\n");
+    // printf("Error from stack.c: join_stacks was given null argument(s)\n");
     return 0;
   }
   if (debug)
