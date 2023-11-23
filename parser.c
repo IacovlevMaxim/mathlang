@@ -207,7 +207,8 @@ sstack_t *parse_cond_exp(sstack_t *stack, int debug) {
   node_t *cond_n = pop_node(stack);
   if (stack->node == NULL) {
     printf("Parser Error: Unexpected end of file. Expected conditional "
-           "expression.\n");
+           "expression for `%s.\n",
+           cond_n->str);
     return NULL;
   }
   if (stack->node->tok_class == OPERATION)
@@ -215,6 +216,11 @@ sstack_t *parse_cond_exp(sstack_t *stack, int debug) {
   else if (stack->node->tok_class == ID ||
            stack->node->tok_class == VALUE) //...
     push_node(cond_exp, pop_node(stack));
+  else {
+    printf("Parser Error: Missing conditional expression for `%s`\n",
+           cond_n->str);
+    return NULL;
+  }
   push_node(cond_exp, cond_n);
   return cond_exp;
 }
@@ -230,7 +236,7 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
         printf("Parser Notif. From parse_chunk: Entering parse_cond_exp "
                "(while)\n");
       if (!join_stacks(parsed, parse_cond_exp(stack, debug), debug)) {
-        printf("Parser Error: parse_chunk failed at WHILE case\n");
+        printf("Parser Error: parse_cond_exp failed at WHILE case\n");
         success = 0;
         break;
       }
@@ -269,7 +275,7 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
         printf(
             "Parser Notif. From parse_chunk: Entering parse_cond_exp (if)\n");
       if (!join_stacks(parsed, parse_cond_exp(stack, debug), debug)) {
-        printf("Parser Error: parse_chunk failed at IF case\n");
+        printf("Parser Error: parse_cond_exp failed at IF case\n");
         success = 0;
         break;
       }
