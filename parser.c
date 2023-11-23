@@ -28,7 +28,7 @@ void nodestrtval(node_t *n) {
     n->val->f = strtof(n->str, NULL);
     break;
   default:
-    printf("Parser Error: Inconveretable `%s`\n", n->str);
+    printf("Parser Error: Inconvertible `%s`\n", n->str);
     exit(1);
   }
 }
@@ -46,7 +46,7 @@ int parse_op(sstack_t *stack, sstack_t *op, int debug) {
       return -2;
     }
     if (stack->node->next->tok_class != ID) {
-      printf("Parser Error: `%s` is unassignable\n", stack->node->next->str);
+      printf("Parser Error: `%s` is nonassignable\n", stack->node->next->str);
       return -2;
     }
   }
