@@ -36,19 +36,22 @@ void nodestrtval(node_t *n) {
 int parse_op(sstack_t *stack, sstack_t *op, int debug) {
 
   if (stack->node->tok_class != OPERATION) {
-    printf("Parser Error: Unexpected token: `%s`\n", stack->node->str);
+    printf("Parser Error: Unexpected `%s`\n", stack->node->str);
     return 0;
   }
 
-  if (stack->node->tok_type == ASG) {
+  if (stack->node->tok_type == ASG || stack->node->tok_type == INPUT) {
     if (stack->node->next == NULL) {
-      printf("Parser Error: Unexpected end of code\n");
+      printf("Parser Error: Unexpected end of file.\n");
       return -2;
     }
     if (stack->node->next->tok_class != ID) {
-      printf("Parser Error: `%s` is unassignable\n", stack->node->str);
+      printf("Parser Error: `%s` is unassignable\n", stack->node->next->str);
       return -2;
     }
+  }
+
+  if (stack->node->tok_type == ASG) {
     push_node(op, pop_node(stack));
     token_type_t expd_type = stack->node->tok_type;
     char *id_str = stack->node->str;
@@ -74,7 +77,8 @@ int parse_op(sstack_t *stack, sstack_t *op, int debug) {
         return -2;
       }
     } else {
-      printf("Parser Error: `%s` is unassignable\n", stack->node->str);
+      printf("Parser Error: cannot assign `%s` to `%s`\n", stack->node->str,
+             id_str);
       return -2;
     }
     return -1;
@@ -98,19 +102,32 @@ int parse_op(sstack_t *stack, sstack_t *op, int debug) {
   case LT:
   case NOT:
     type_persists = 1;
+    break;
   default:
     break;
   }
 
-  if (stack->node->tok_type == DIV) {
+  switch (stack->node->tok_type) {
+  case PRINT:
+  case INPUT:
+    curr_type = -1;
+    break;
+  case DIV:
     curr_type = FLOAT;
-  } else
+    break;
+  default:
     curr_type = INT;
+  }
 
-  if (stack->node->tok_type == NOT)
+  switch (stack->node->tok_type) {
+  case NOT:
+  case INPUT:
+  case PRINT:
     max_val_count = 1;
-  else
+    break;
+  default:
     max_val_count = 2;
+  }
 
   if (debug)
     printf("n: %s v_count: %i, max_v_count: %i\n", stack->node->str, val_count,
@@ -160,9 +177,12 @@ sstack_t *parse_line(sstack_t *stack, int debug) {
   sstack_t *op_line = init_stack();
   node_t *n = stack->node;
   switch (n->tok_type) {
-  case ASG: {
+  case ASG:
+  case PRINT:
+  case INPUT: {
     if (parse_op(stack, op_line, debug) != -1) {
-      fprintf(stderr, "Parser Error: parse_line: parse_op failed for ASG\n");
+      fprintf(stderr, "Parser Error: parse_line: parse_op failed for ASG, "
+                      "PRINT, or INPUT\n");
       return NULL;
     }
     if (debug)
@@ -173,9 +193,12 @@ sstack_t *parse_line(sstack_t *stack, int debug) {
     break;
   }
   // TODO print error with more context for value, variable, or operation.
-  fprintf(stderr, "Parser Error: unexpected `%s`\n", n->str);
+  fprintf(stderr, "Parser Error: Unexpected `%s`\n", n->str);
   if (n->tok_class == ID)
     printf("Parser Tip: Forgot to prepend `asg`, `input` or `print`?\n");
+  else if (n->tok_class == OPERATION)
+    printf("Parser Tip: Forgot to prepend `print`, or assign the result to a "
+           "variable?\n");
   return NULL;
 }
 
@@ -212,7 +235,7 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
         break;
       }
       if (stack->node == NULL) {
-        printf("Parser Error: Unexpected end of file, missing exec "
+        printf("Parser Error: Unexpected end of file. Missing exec "
                "block or line for `while` statement\n");
         success = 0;
         break;
@@ -227,10 +250,8 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
           break;
         }
         if (stack->node == NULL) {
-          printf(
-              "Parser Error: Unexpected end of file. `while` statement's exec "
-              "block "
-              "not terminated with `}`\n");
+          printf("Parser Error: Unexpected end of file. `while` statement's "
+                 "exec block not terminated with `}`\n");
           success = 0;
           break;
         }
@@ -253,7 +274,7 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
         break;
       }
       if (stack->node == NULL) {
-        printf("Parser Error: Unexpected end of file, missing exec "
+        printf("Parser Error: Unexpected end of file. Missing exec "
                "block or line for `if` statement\n");
         success = 0;
         break;
@@ -296,7 +317,7 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
       if (stack->node->tok_type == ELSE) {
         append_node(parsed, pop_node(stack));
         if (stack->node == NULL) {
-          printf("Parser Error: Unexpected end of file, missing exec "
+          printf("Parser Error: Unexpected end of file. Missing exec "
                  "block or line for `else`\n");
           success = 0;
           break;
