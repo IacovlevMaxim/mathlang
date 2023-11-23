@@ -79,6 +79,10 @@ int get_op_type(char *str) {
     return AND;
   if (strcmp(str, "or") == 0)
     return OR;
+  if (strcmp(str, "print") == 0)
+      return PRINT;
+  if (strcmp(str, "input") == 0)
+      return INPUT;
   return TYPE_NONE;
 }
 
