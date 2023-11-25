@@ -30,7 +30,6 @@ node_t *pop_node(sstack_t *stack) {
     return NULL;
   stack->node = stack->node->next;
   to_pop->next = NULL;
-  // printf("%s\n", to_pop->str);
   return to_pop;
 }
 

@@ -35,6 +35,11 @@ void input_code(char **code) {
 int main() {
   char *code = malloc(sizeof(char) * 256);
   input_code(&code);
+  // char *code = "int a\n"
+  //              "float b\n"
+  //              "{\n"
+  //              "  { }\n"
+  //              "}\n";
 
   sstack_t *stack = init_stack();
 
@@ -49,5 +54,5 @@ int main() {
     exit(1);
   }
 
-   interpret(caveman_tree, &variables, 1);
+  interpret(caveman_tree, variables, 0);
 }

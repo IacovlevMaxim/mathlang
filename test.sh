@@ -2,17 +2,23 @@
 
 
 
+#gcc -Wall -Wextra -pedantic -Werror test.c lexer.c parser.c interpreter.c stack.c -o test || exit 1
+
 gcc test.c lexer.c parser.c interpreter.c stack.c -o test || exit 1
 
 cat  << eof | ./test
 int a
 float b
 {
-  asg a 1
-  asg b add a 2.3
+  asg a 9
+  asg b 0.1
+  asg b add mul a b div 12 2
+  print a
+  print b
 }
-
 eof
+
+
 
 
 #  char *code = "int a\n"

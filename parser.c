@@ -20,16 +20,17 @@ char *tokttstr(token_type_t t) {
 
 void nodestrtval(node_t *n) {
   // printf("%p\n", n->val);
+  if (n->tok_class != VALUE)
+    return;
   switch (n->tok_type) {
   case INT:
     n->val->i = strtol(n->str, NULL, 0);
-    break;
+    return;
   case FLOAT:
     n->val->f = strtof(n->str, NULL);
-    break;
+    return;
   default:
-    printf("Parser Error: Inconvertible `%s`\n", n->str);
-    exit(1);
+    return;
   }
 }
 
@@ -37,7 +38,7 @@ int parse_op(sstack_t *stack, sstack_t *op, int debug) {
 
   if (stack->node->tok_class != OPERATION) {
     printf("Parser Error: Unexpected `%s`\n", stack->node->str);
-    return 0;
+    return -2;
   }
 
   if (stack->node->tok_type == ASG || stack->node->tok_type == INPUT) {
@@ -65,6 +66,7 @@ int parse_op(sstack_t *stack, sstack_t *op, int debug) {
             tokttstr(stack->node->tok_type));
         return -2;
       }
+      nodestrtval(stack->node);
       push_node(op, pop_node(stack));
     } else if (stack->node->tok_class == OPERATION) {
       token_type_t res = parse_op(stack, op, debug);
