@@ -204,7 +204,7 @@ void not(sstack_t * params, var *vars, int debug) {
   node_t *n = init_node();
   n->tok_class = VALUE;
   n->tok_type = INT;
-  n->val->i = !get_bool(vars, n);
+  n->val->i = get_bool(vars, p) == 1;
   push_node(params, n);
   free(p);
 }
