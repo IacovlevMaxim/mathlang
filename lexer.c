@@ -7,7 +7,7 @@
 #include <string.h>
 
 // Maybe without the caret?
-const char *IS_VAR = "^[a-zA-Z_][a-zA-Z0-9]*";
+const char *IS_VAR = "^[a-zA-Z][a-zA-Z0-9_]*";
 
 regex_t var_regex;
 
