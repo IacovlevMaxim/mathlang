@@ -381,9 +381,18 @@ const node_t *eval_block(const node_t *node, sstack_t *new_stack, var *vars,
                          int debug);
 
 const node_t *skip_block(const node_t *node) {
-  while (node->tok_type != R_BRACE)
+  int d = 1;
+  while (d != 0) {
+    if (node->tok_type == R_BRACE) {
+      d--;
+    } else if (node->tok_type == L_BRACE) {
+      d++;
+    }
+    // printf("d %i\n", d);
     node = node->next;
-  return node->next;
+  }
+  // printf("tt %s\n", node->str);
+  return node;
 }
 
 const node_t *eval_if(const node_t *node, sstack_t *new_stack, var *vars,
@@ -418,11 +427,13 @@ const node_t *eval_while(const node_t *node, sstack_t *new_stack, var *vars,
   if (debug)
     printf("WHILE cond bool: %i\n", new_stack->node->val.i);
   if (new_stack->node->val.i) {
+    // printf("|--------->%p\n", node);
     node = eval_block(node, new_stack, vars, debug);
     free(pop_node(new_stack));
     return label;
   } else
     node = skip_block(node);
+  // printf("--------->%s\n", node->str);
   free(pop_node(new_stack));
   return node;
 }
