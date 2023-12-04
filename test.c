@@ -54,5 +54,9 @@ int main() {
     exit(1);
   }
 
-  interpret(caveman_tree, variables, 1);
+  interpret(caveman_tree, variables, 0);
+
+  node_t *n;
+  while ((n = pop_node(caveman_tree)) != NULL)
+    free(n);
 }

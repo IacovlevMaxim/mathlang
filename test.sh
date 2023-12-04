@@ -7,7 +7,7 @@
 gcc test.c lexer.c parser.c interpreter.c stack.c -o test || exit 1
 
 cat  << eof | ./test
-int a
+int a i
 float b
 {
   asg a 9
@@ -15,6 +15,10 @@ float b
   asg b add mul a b div 12 2
   print a
   print b
+  while not eq i 4 {
+    print i
+    asg i add i 1
+  }
   if lt a b { 
     print add a mul a b
     print b
@@ -24,6 +28,11 @@ float b
       print 9999
     }
   }
+  while not eq i 0 {
+    print i
+    asg i sub i 1
+  }
+  print i
 }
 eof
 

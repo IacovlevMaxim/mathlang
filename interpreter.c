@@ -8,9 +8,6 @@
 
 const double EQ_PRECISION = 0.001;
 
-/////// TODO
-void eval_while();
-
 var *get_variable(var **variables, char **name) {
   var *currVar;
   int i = 0;
@@ -229,8 +226,19 @@ void gt(sstack_t *params, var *vars, int debug) {
 void lt(sstack_t *params, var *vars, int debug) {
   if (debug)
     printf("Started lt\n");
-  gt(params, vars, debug);
-  not(params, vars, debug);
+
+  node_t *from = pop_node(params);
+  node_t *to = pop_node(params);
+
+  node_t *res = init_node();
+  res->tok_class = VALUE;
+  res->tok_type = INT;
+
+  res->val.i = get_float_value(vars, to) > get_float_value(vars, from);
+
+  push_node(params, res);
+  free(from);
+  free(to);
 }
 
 void and (sstack_t * params, var *vars, int debug) {
@@ -337,7 +345,7 @@ const node_t *eval_op(const node_t *op, sstack_t *new_stack, var *vars,
     input(new_stack, vars, debug);
     break;
   default:
-    printf("Operation is not supported\n");
+    printf("Operation is not supported: %s\n", op->str);
     break;
   }
   return op->next;
@@ -359,7 +367,7 @@ const node_t *eval_cond(const node_t *node, sstack_t *new_stack, var *vars,
       return node;
     default: {
       if (debug)
-        printf("cond op: %s\n", node->str);
+        printf("assumed cond op: %s\n", node->str);
       eval_op(node, new_stack, vars, debug);
       // printf("----------- %i\n", new_stack->node->val.i);
     }
@@ -383,25 +391,46 @@ const node_t *eval_if(const node_t *node, sstack_t *new_stack, var *vars,
   node = node->next;
   node = eval_cond(node, new_stack, vars, debug);
   if (debug)
-    printf("cond bool: %i\n", new_stack->node->val.i);
+    printf("IF cond bool: %i\n", new_stack->node->val.i);
   node = node->next;
   if (new_stack->node->val.i)
     node = eval_block(node, new_stack, vars, debug);
   else
     node = skip_block(node);
   if (node != NULL && node->tok_type == ELSE) {
-    node = node->next;
+    node = node->next->next;
     if (!new_stack->node->val.i) {
       node = eval_block(node, new_stack, vars, debug);
+      node = node->next;
     } else
       node = skip_block(node);
   }
+  free(pop_node(new_stack));
+  return node;
+}
+
+const node_t *eval_while(const node_t *node, sstack_t *new_stack, var *vars,
+                         int debug) {
+  const node_t *label = node;
+  node = node->next;
+  node = eval_cond(node, new_stack, vars, debug);
+  node = node->next;
+  if (debug)
+    printf("WHILE cond bool: %i\n", new_stack->node->val.i);
+  if (new_stack->node->val.i) {
+    node = eval_block(node, new_stack, vars, debug);
+    free(pop_node(new_stack));
+    return label;
+  } else
+    node = skip_block(node);
+  free(pop_node(new_stack));
   return node;
 }
 
 const node_t *eval_block(const node_t *node, sstack_t *new_stack, var *vars,
                          int debug) {
-  printf("ENTERED BLOCK\n");
+  if (debug)
+    printf("ENTERED BLOCK\n");
   while (node != NULL && node->tok_type != R_BRACE) {
     if (node->tok_class == ID || node->tok_class == VALUE) {
       if (debug)
@@ -410,11 +439,10 @@ const node_t *eval_block(const node_t *node, sstack_t *new_stack, var *vars,
       node = node->next;
     } else if (node->tok_class == COND_OP) {
       if (node->tok_type == IF) {
-        printf("IF: UNIMPLEMENTED\n");
         node = eval_if(node, new_stack, vars, debug);
       } else {
-        printf("WHILE: UNIMPLEMENTED\n");
-        // eval_while(...) TODO
+        // printf("----> %s\n", node->str);
+        node = eval_while(node, new_stack, vars, debug);
       }
     } else {
       if (debug)
@@ -428,5 +456,4 @@ const node_t *eval_block(const node_t *node, sstack_t *new_stack, var *vars,
 void interpret(sstack_t *stack, var *vars, int debug) {
   sstack_t *new_stack = init_stack();
   const node_t *node = eval_block(stack->node, new_stack, vars, debug);
-  // printf("after interpret: %s\n", node->str);
 }
