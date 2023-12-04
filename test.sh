@@ -15,11 +15,17 @@ float b
   asg b add mul a b div 12 2
   print a
   print b
+  if lt a b { 
+    print add a mul a b
+    print b
+  } else {
+    print 1337
+    if not eq 1 1 {
+      print 9999
+    }
+  }
 }
 eof
-
-
-
 
 #  char *code = "int a\n"
 #              "float b\n"

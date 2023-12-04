@@ -54,5 +54,5 @@ int main() {
     exit(1);
   }
 
-  interpret(caveman_tree, variables, 0);
+  interpret(caveman_tree, variables, 1);
 }

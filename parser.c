@@ -24,10 +24,10 @@ void nodestrtval(node_t *n) {
     return;
   switch (n->tok_type) {
   case INT:
-    n->val->i = strtol(n->str, NULL, 0);
+    n->val.i = strtol(n->str, NULL, 0);
     return;
   case FLOAT:
-    n->val->f = strtof(n->str, NULL);
+    n->val.f = strtof(n->str, NULL);
     return;
   default:
     return;

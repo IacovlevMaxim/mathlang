@@ -10,9 +10,16 @@ node_t *init_node() {
     return NULL;
   }
   // node->data = alloc_data_of(type);
-  node->val = malloc(sizeof(node_val_t));
+  // node->val = malloc(sizeof(node_val_t));
   node->next = NULL;
   return node;
+}
+
+node_t *dup_node(const node_t *n) {
+  node_t *new = init_node();
+  *new = *n;
+  new->next = NULL;
+  return new;
 }
 
 int push_node(sstack_t *stack, node_t *to_push) {

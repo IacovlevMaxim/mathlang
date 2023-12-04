@@ -14,9 +14,9 @@ typedef union {
 typedef struct node_t {
   token_class_t tok_class;
   token_type_t tok_type;
-  char *str;
   // size_t no_line;
-  node_val_t *val;
+  node_val_t val;
+  char *str;
   struct node_t *next;
 } node_t;
 
@@ -29,6 +29,7 @@ sstack_t *init_stack();
 int push_node(sstack_t *stack, node_t *to_push);
 node_t *pop_node(sstack_t *stack);
 int append_node(sstack_t *top, node_t *nnew);
+node_t *dup_node(const node_t *n);
 
 int join_stacks(sstack_t *s1, sstack_t *s2, int debug);
 
