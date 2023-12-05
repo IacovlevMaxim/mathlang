@@ -6,47 +6,90 @@
 
 gcc test.c lexer.c parser.c interpreter.c stack.c -o test || exit 1
 
+echo FIBONACI TEST:
+cat  << eof | ./test
+int n1 n2 i next
+{
+  asg n2 1
+  print n1
+  print n2
+  while lt i 26 {
+    asg next add n1 n2
+    print next
+    asg n1 n2
+    asg n2 next
+    asg i add i 1
+  }
+}
+eof
+
+echo TEST TYPE-CHECKING
+cat  << eof | ./test
+int a
+float b
+{
+  asg a 1
+  asg b 0.3
+  print a
+  print b
+  asg a mul a b
+}
+eof
+
+echo TEST TYPE-CHECKING 2
+cat  << eof | ./test
+int a
+float b
+{
+  asg a 1
+  asg b 0.3
+  print a
+  print b
+  asg a not b
+}
+eof
+
+echo TEST TYPE-CHECKING 3
+cat  << eof | ./test
+int a
+float b
+{
+  asg a 1
+  asg b 0.3
+  print a
+  print b
+  asg a add a div b 2
+}
+eof
+
+echo TEST NESTED EXEC BLOCKS
 cat  << eof | ./test
 int a i
 float b
 {
-  asg a 9
   asg b 0.1
-  asg b add mul a b div 12 2
-  print a
-  print b
-  while not eq i 4 {
-    print i
-    asg i add i 1
-  }
-  if lt a b { 
-    print add a mul a b
-    print b
-  } else {
-    print 1337
-    if not eq 1 1 {
-      print 9999
+  while lt a 20 {
+    if gt a 3 {
+      while lt i a {
+        print mul b i
+        asg i add i 1
+      }
+    } else {
+      print a
     }
+    asg a add a 1
   }
-  while not eq i 0 {
-    print i
-    asg i sub i 1
-  }
-  print i
+  print mul a b
 }
 eof
 
-#  char *code = "int a\n"
-#              "float b\n"
-#              "{\n"
-#              "\n\n"
-#              "  asg a 1\n"
-#              "  if gt a 0 {\n"
-#              "    asg b 1.23\n"
-#              "      while lt a 5 {\n"
-#              "        asg a add a 1\n"
-#              "      }\n"
-#              "    asg a add b 2\n"
-#              "  }\n"
-#              "  else asg a 2\n"
-#              "}\n";
+
+#echo TEST INFINITE LOOP
+#cat  << eof | ./test
+#int a b
+#{
+#  asg a 1
+#  print b
+#  print a
+#  while 1 { print a print b }
+#eof

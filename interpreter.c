@@ -359,7 +359,7 @@ const node_t *eval_cond(const node_t *node, sstack_t *new_stack, var *vars,
     case ID:
     case VALUE: {
       if (debug)
-        printf("cond val: %s\n", node->str);
+        printf("cond val: %i\n", node->val.i);
       push_node(new_stack, dup_node(node));
       break;
     }
@@ -402,9 +402,10 @@ const node_t *eval_if(const node_t *node, sstack_t *new_stack, var *vars,
   if (debug)
     printf("IF cond bool: %i\n", new_stack->node->val.i);
   node = node->next;
-  if (new_stack->node->val.i)
+  if (new_stack->node->val.i) {
     node = eval_block(node, new_stack, vars, debug);
-  else
+    node = node->next;
+  } else
     node = skip_block(node);
   if (node != NULL && node->tok_type == ELSE) {
     node = node->next->next;
