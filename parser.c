@@ -56,14 +56,15 @@ int parse_op(sstack_t *stack, sstack_t *op, int debug) {
     push_node(op, pop_node(stack));
     token_type_t expd_type = stack->node->tok_type;
     char *id_str = stack->node->str;
+    int line = stack->node->line;
     push_node(op, pop_node(stack));
     if (stack->node->tok_class == VALUE || stack->node->tok_class == ID) {
       if (stack->node->tok_type != expd_type) {
         printf(
             "Parser Error: attempting to assign `%s` of type %s the value `%s` "
-            "of type %s\n",
+            "of type %s on line %d\n",
             op->node->str, tokttstr(op->node->tok_type), stack->node->str,
-            tokttstr(stack->node->tok_type));
+            tokttstr(stack->node->tok_type), line);
         return -2;
       }
       nodestrtval(stack->node);
@@ -74,13 +75,13 @@ int parse_op(sstack_t *stack, sstack_t *op, int debug) {
         return -2;
       if (res != expd_type) {
         printf("Parser Error: attempting to assign `%s` of type %s a return "
-               "value of type %s\n",
-               id_str, tokttstr(expd_type), tokttstr(res));
+               "value of type %s on line %d\n",
+               id_str, tokttstr(expd_type), tokttstr(res), line);
         return -2;
       }
     } else {
-      printf("Parser Error: cannot assign `%s` to `%s`\n", stack->node->str,
-             id_str);
+      printf("Parser Error: cannot assign `%s` to `%s` on line %d\n", stack->node->str,
+             id_str, line);
       return -2;
     }
     return -1;
@@ -242,11 +243,16 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
         success = 0;
         break;
       }
-      if (stack->node == NULL || stack->node->tok_type != L_BRACE) {
-        printf("Parser Error: Missing exec block for `while` statement\n");
+      if (stack->node == NULL) {
+        printf("Parser Error: Missing exec block for `while` statement at end of file\n");
         success = 0;
         break;
+      } else if (stack->node->tok_type != L_BRACE) {
+          printf("Parser Error: Missing exec block for `while` statement on line %d\n", stack->node->line);
+          success = 0;
+          break;
       }
+
       if (debug)
         printf("Parser Notif. From parse_chunk: Entering while block\n");
       append_node(parsed, pop_node(stack));
@@ -273,11 +279,16 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
         success = 0;
         break;
       }
-      if (stack->node == NULL || stack->node->tok_type != L_BRACE) {
-        printf("Parser Error: Missing exec block  for `if` statement\n");
+      if (stack->node == NULL) {
+        printf("Parser Error: Missing exec block  for `if` statement at end of file\n");
         success = 0;
         break;
+      } else if (stack->node->tok_type != L_BRACE) {
+          printf("Parser Error: Missing exec block  for `if` statement on line %d\n", stack->node->line);
+          success = 0;
+          break;
       }
+
       if (debug)
         printf("Parser Notif. From parse_chunk: Entering if block\n");
       append_node(parsed, pop_node(stack));
@@ -299,11 +310,16 @@ int parse_chunk(sstack_t *stack, sstack_t *parsed, int break_point, int debug) {
         break;
       if (stack->node->tok_type == ELSE) {
         append_node(parsed, pop_node(stack));
-        if (stack->node == NULL || stack->node->tok_type != L_BRACE) {
-          printf("Parser Error: Missing exec block or line for `else`\n");
+        if (stack->node == NULL) {
+          printf("Parser Error: Missing exec block or line for `else` at end of file\n");
           success = 0;
           break;
+        } else if (stack->node->tok_type != L_BRACE) {
+            printf("Parser Error: Missing exec block or line for `else` on line %d\n", stack->node->line);
+            success = 0;
+            break;
         }
+
         if (debug)
           printf("Parser Notif. From parse_chunk: Entering else block\n");
         append_node(parsed, pop_node(stack));

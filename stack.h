@@ -14,10 +14,10 @@ typedef union {
 typedef struct node_t {
   token_class_t tok_class;
   token_type_t tok_type;
-  // size_t no_line;
   node_val_t val;
   char *str;
   struct node_t *next;
+  int line;
 } node_t;
 
 typedef struct sstack_t {
