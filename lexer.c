@@ -327,33 +327,3 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
   free(token);
   //  *variables = vars;
 }
-
-// int main(void) {
-//     char* code =
-//             "int a\n" \
-//            "float b\n" \
-//            "{\n" \
-//            "asg a 1\n" \
-//            "asg b 1.23\n" \
-//            "while not eq a 10 {\n" \
-//            "asg a add a 1\n" \
-//            "}\n" \
-//            "}\n";
-//
-//     printf("Code:\n///\n%s\n///\n", code);
-//     node_t node = EMPTY_DATA;
-//     parse_code(code, &node);
-//     printf("Node contents:\n");
-//     printf("str: %s\n", node.str);
-//     printf("type: %d\n", node.tok_type);
-//     printf("class: %d\n", node.tok_class);
-//     while(node.next != NULL) {
-//         printf("-----\n");
-//         printf("str: %s\n", node.next->str);
-//         printf("type: %d\n", node.next->tok_type);
-//         printf("class: %d\n", node.next->tok_class);
-//         node = *node.next;
-//     }
-//
-//     //To-do: also deallocate memory xd
-// }

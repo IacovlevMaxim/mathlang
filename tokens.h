@@ -1,7 +1,3 @@
-//
-// Created by maxim on 07.11.2023.
-//
-
 #ifndef MATHLANG_TOKENS_H
 #define MATHLANG_TOKENS_H
 typedef enum {

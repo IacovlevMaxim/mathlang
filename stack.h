@@ -1,7 +1,3 @@
-//
-// Created by maxim on 06.11.2023.
-//
-
 #ifndef MATHLANG_STACK_H
 #define MATHLANG_STACK_H
 #include "tokens.h"
