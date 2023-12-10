@@ -147,6 +147,13 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
     int cond_op_type = get_cond_op_type(token);
 
     if (strcmp(token, "int") == 0) {
+        if(curr_type != TYPE_NONE) {
+            fprintf(stderr,
+                    "Lexer error: Illegal \"%s\" placement during variable definition on line %d ",
+                    token,
+                    line_count);
+            exit(1);
+        }
       if (depth > 0) {
         fprintf(stderr,
                 "Lexer error: Definition of variable in main block on line %d",
@@ -159,6 +166,13 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
       //      curr->tok_type = DEF_INT;
       //      curr->str = strdup(token);
     } else if (strcmp(token, "float") == 0) {
+        if(curr_type != TYPE_NONE) {
+            fprintf(stderr,
+                    "Lexer error: Illegal \"%s\" placement during variable definition on line %d ",
+                    token,
+                    line_count);
+            exit(1);
+        }
       if (depth > 0) {
         fprintf(stderr,
                 "Lexer error: Definition of variable in main block on line %d",
@@ -194,10 +208,24 @@ void tokenize(char *code, sstack_t *top, var **variables, int debug) {
         skip_append = 1;
       }
     } else if (op_type != TYPE_NONE) {
+      if(curr_type != TYPE_NONE) {
+          fprintf(stderr,
+                  "Lexer error: Illegal operation placement \"%s\" during variable definition on line %d ",
+                  token,
+                  line_count);
+          exit(1);
+      }
       curr->tok_class = OPERATION;
       curr->tok_type = op_type;
       curr->str = strdup(token);
     } else if (cond_op_type != TYPE_NONE) {
+        if(curr_type != TYPE_NONE) {
+            fprintf(stderr,
+                    "Lexer error: Illegal conditional operation placement \"%s\" during variable definition on line %d ",
+                    token,
+                    line_count);
+            exit(1);
+        }
       curr->tok_class = COND_OP;
       curr->tok_type = cond_op_type;
       curr->str = strdup(token);
